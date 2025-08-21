@@ -24,7 +24,7 @@ public class CategoryController {
     public ResponseEntity<?> saveCategory(@RequestBody CategoryDto category){
         Boolean isSaved = categoryService.saveCategory(category);
         if(isSaved){
-            return ResponseEntity.status(HttpStatus.CREATED).build();
+            return new ResponseEntity<>("Saved Success",HttpStatus.CREATED);
         }else{
             return new ResponseEntity<>("not saved",HttpStatus.INTERNAL_SERVER_ERROR);
         }

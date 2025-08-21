@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Setter
@@ -21,5 +20,5 @@ public class BaseModel {
     
     private Integer updatedBy;
 
-    private Date updatedOn;
+    private LocalDateTime updatedOn;
 }
