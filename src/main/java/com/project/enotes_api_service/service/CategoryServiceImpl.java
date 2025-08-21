@@ -2,7 +2,6 @@ package com.project.enotes_api_service.service;
 
 import com.project.enotes_api_service.dto.CategoryDto;
 import com.project.enotes_api_service.dto.CategoryResponseDto;
-import com.project.enotes_api_service.entity.BaseModel;
 import com.project.enotes_api_service.entity.Category;
 import com.project.enotes_api_service.repository.CategoryRepository;
 import org.modelmapper.ModelMapper;
@@ -34,16 +33,28 @@ public class CategoryServiceImpl implements CategoryService{
 //          return false;
 //       }
         Category category1 = modelMapper.map(category, Category.class);
-        category1.setName(category.getName());
-        category1.setDescription(category.getDescription());
-        category1.setCreateBy(1);
-        category1.setCreatedOn(LocalDateTime.now());
-        category1.setIsActive(category.getIsActive());
-        category1.setIsDeleted(false);
-        Category saveCategory = categoryRepository.save(category1);
-        return !ObjectUtils.isEmpty(saveCategory);
+        if(ObjectUtils.isEmpty(category1.getId())){
+            category1.setIsDeleted(false);
+            category1.setCreatedOn(LocalDateTime.now());
+            category1.setCreateBy(1);
+        }else{
+            updateCategory(category1);
+        }
+        categoryRepository.save(category1);
+        return true;
     }
 
+    private void updateCategory(Category category) {
+        Optional<Category> categoryById = categoryRepository.findById(category.getId());
+        if(categoryById.isPresent()){
+            Category optionalcategory = categoryById.get();
+            category.setUpdatedBy(1);
+            category.setUpdatedOn(LocalDateTime.now());
+            category.setIsDeleted(optionalcategory.getIsDeleted());
+            category.setCreatedOn(optionalcategory.getCreatedOn());
+            category.setCreateBy(optionalcategory.getCreateBy());
+            }
+    }
 
 
     @Override
