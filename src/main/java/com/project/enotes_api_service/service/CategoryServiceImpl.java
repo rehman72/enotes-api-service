@@ -2,6 +2,7 @@ package com.project.enotes_api_service.service;
 
 import com.project.enotes_api_service.dto.CategoryDto;
 import com.project.enotes_api_service.dto.CategoryResponseDto;
+import com.project.enotes_api_service.entity.BaseModel;
 import com.project.enotes_api_service.entity.Category;
 import com.project.enotes_api_service.repository.CategoryRepository;
 import org.modelmapper.ModelMapper;
@@ -11,6 +12,8 @@ import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+
 @Service
 public class CategoryServiceImpl implements CategoryService{
 
@@ -46,7 +49,7 @@ public class CategoryServiceImpl implements CategoryService{
     @Override
     public List<CategoryDto> getAllCategory() {
         List<Category> allCategories = categoryRepository
-                .findAll();
+                .findAllAndIsDeletedFalse();
          return  allCategories.
                 stream()
                 .map(category -> modelMapper.map(category, CategoryDto.class))
@@ -55,10 +58,32 @@ public class CategoryServiceImpl implements CategoryService{
 
     @Override
     public List<CategoryResponseDto> getActiveCategory() {
-        List<Category> categoriesActive = categoryRepository.findByIsActiveTrue();
+        List<Category> categoriesActive = categoryRepository.findByIsActiveTrueAndIsDeletedFalse();
          return categoriesActive.stream()
                 .map(category -> modelMapper.map(category, CategoryResponseDto.class))
                 .toList();
     }
 
+    @Override
+    public CategoryDto getCategoryById(Integer id) {
+        Optional<Category> categoryById = categoryRepository.findByIdAndIsDeletedFalse(id);
+
+        if(categoryById.isPresent()) {
+            Category category = categoryById.get();
+            return modelMapper.map(category, CategoryDto.class);
+        }
+        return  null;
+    }
+
+    @Override
+    public boolean deleteCategory(Integer id) {
+        Optional<Category> byId = categoryRepository.findById(id);
+        if(byId.isPresent()){
+            Category category = byId.get();
+            category.setIsDeleted(true);
+            categoryRepository.save(category);
+            return true;
+        }
+        return false;
+    }
 }
