@@ -3,15 +3,16 @@ package com.project.enotes_api_service.contoller;
 import com.project.enotes_api_service.dto.CategoryDto;
 import com.project.enotes_api_service.dto.CategoryResponseDto;
 import com.project.enotes_api_service.service.CategoryServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/category")
 public class CategoryController {
@@ -51,12 +52,14 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCategoryById(@PathVariable("id") Integer id){
+    public ResponseEntity<?> getCategoryById(@PathVariable("id") Integer id) throws Exception {
         CategoryDto categoryById = categoryService.getCategoryById(id);
         if(ObjectUtils.isEmpty(categoryById)){
-            return new ResponseEntity<>("Category Not Found",HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("INTERNAL SERVER ERROR",HttpStatus.NOT_FOUND);
+
         }
-        return  new ResponseEntity<>(categoryById,HttpStatus.OK);
+        return new ResponseEntity<>(categoryById,HttpStatus.OK);
+
     }
 
     @DeleteMapping("/{id}")
