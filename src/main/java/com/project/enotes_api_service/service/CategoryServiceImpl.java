@@ -5,11 +5,13 @@ import com.project.enotes_api_service.dto.CategoryDto;
 import com.project.enotes_api_service.dto.CategoryResponseDto;
 import com.project.enotes_api_service.entity.Category;
 import com.project.enotes_api_service.repository.CategoryRepository;
+import com.project.enotes_api_service.util.Validation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
@@ -20,12 +22,15 @@ import java.util.Optional;
 public class CategoryServiceImpl implements CategoryService{
 
     @Autowired
+    private Validation validation;
+
+    @Autowired
     private CategoryRepository categoryRepository;
 
     @Autowired
     private ModelMapper modelMapper;
 
-
+    @Transactional
     @Override
     public Boolean saveCategory(CategoryDto category) {
 //        category.setIsDeleted(false);
@@ -35,6 +40,7 @@ public class CategoryServiceImpl implements CategoryService{
 //       if(ObjectUtils.isEmpty(savedCategory)){
 //          return false;
 //       }
+        validation.CategoryValidation(category);
         Category category1 = modelMapper.map(category, Category.class);
         if(ObjectUtils.isEmpty(category1.getId())){
             category1.setIsDeleted(false);
