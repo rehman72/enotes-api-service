@@ -1,6 +1,5 @@
 package com.project.enotes_api_service.repository;
 
-import com.project.enotes_api_service.Exception.ResourceNotFoundException;
 import com.project.enotes_api_service.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

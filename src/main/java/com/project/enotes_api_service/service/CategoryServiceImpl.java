@@ -5,8 +5,6 @@ import com.project.enotes_api_service.dto.CategoryDto;
 import com.project.enotes_api_service.dto.CategoryResponseDto;
 import com.project.enotes_api_service.entity.Category;
 import com.project.enotes_api_service.repository.CategoryRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
