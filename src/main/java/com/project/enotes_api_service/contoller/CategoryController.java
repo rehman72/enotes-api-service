@@ -3,6 +3,7 @@ package com.project.enotes_api_service.contoller;
 import com.project.enotes_api_service.dto.CategoryDto;
 import com.project.enotes_api_service.dto.CategoryResponseDto;
 import com.project.enotes_api_service.service.CategoryServiceImpl;
+import com.project.enotes_api_service.util.Validation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,10 +21,13 @@ public class CategoryController {
     @Autowired
     private  CategoryServiceImpl categoryService;
 
+    @Autowired
+    private Validation validation;
 
     @PostMapping("/save-category")
     public ResponseEntity<?> saveCategory(@RequestBody CategoryDto category){
         Boolean isSaved = categoryService.saveCategory(category);
+        validation.CategoryValidation(category);
         if(isSaved){
             return new ResponseEntity<>("Saved Success",HttpStatus.CREATED);
         }else{
