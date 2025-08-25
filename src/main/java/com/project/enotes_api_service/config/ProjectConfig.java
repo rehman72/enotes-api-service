@@ -13,6 +13,10 @@ public class ProjectConfig {
     }
 
 
+    @Bean
+    public AuditAwareConfig auditAwareConfig(){
+        return new AuditAwareConfig();
+    }
 
 
 

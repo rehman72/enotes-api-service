@@ -1,0 +1,8 @@
+POST http://localhost:8080/api/v1/category/save-category
+Content-Type: application/json
+
+{
+  "name": "Test-Save-Category Updated 1",
+  "description": "This is Test Description Updated 1",
+  "isActive": true
+}
