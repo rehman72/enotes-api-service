@@ -1,5 +1,6 @@
 package com.project.enotes_api_service.service;
 
+import com.project.enotes_api_service.Exception.AlreadyExistException;
 import com.project.enotes_api_service.Exception.ResourceNotFoundException;
 import com.project.enotes_api_service.dto.CategoryDto;
 import com.project.enotes_api_service.dto.CategoryResponseDto;
@@ -11,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
-
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,12 +37,14 @@ public class CategoryServiceImpl implements CategoryService{
 //       if(ObjectUtils.isEmpty(savedCategory)){
 //          return false;
 //       }
+        Boolean isExists = categoryRepository.existsByName(category.getName());
+        if(isExists){
+            throw new  AlreadyExistException("Category Already Exists");
+        }
         validation.CategoryValidation(category);
         Category category1 = modelMapper.map(category, Category.class);
         if(ObjectUtils.isEmpty(category1.getId())){
             category1.setIsDeleted(false);
-            category1.setCreatedOn(LocalDateTime.now());
-            category1.setCreateBy(1);
         }else{
             updateCategory(category1);
         }
@@ -53,14 +54,7 @@ public class CategoryServiceImpl implements CategoryService{
 
     private void updateCategory(Category category) {
         Optional<Category> categoryById = categoryRepository.findById(category.getId());
-        if(categoryById.isPresent()){
-            Category optionalcategory = categoryById.get();
-            category.setUpdatedBy(1);
-            category.setUpdatedOn(LocalDateTime.now());
-            category.setIsDeleted(optionalcategory.getIsDeleted());
-            category.setCreatedOn(optionalcategory.getCreatedOn());
-            category.setCreateBy(optionalcategory.getCreateBy());
-            }
+        categoryById.ifPresent(optionalcategory -> category.setIsDeleted(optionalcategory.getIsDeleted()));
     }
 
 
