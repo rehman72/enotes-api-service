@@ -1,0 +1,9 @@
+POST  http://localhost:8080/api/v1/category/save-category
+Content-Type: application/json
+
+{
+  "id": 4,
+  "name": "C++  Fundamentals",
+  "description": "It is the C++ Java",
+  "isActive": true
+}

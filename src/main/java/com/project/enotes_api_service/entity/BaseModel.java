@@ -1,7 +1,12 @@
 package com.project.enotes_api_service.entity;
+import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
@@ -10,15 +15,21 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 public class BaseModel {
 
-    private  Boolean isActive;
-
-    private  Boolean isDeleted;
-
+    @CreatedBy
+    @Column(
+    updatable = false
+    )
     private Integer createBy;
 
+    @CreatedDate
+    @Column(updatable = false)
     private LocalDateTime createdOn;
-    
+
+    @LastModifiedBy
+    @Column(insertable = false)
     private Integer updatedBy;
 
+    @LastModifiedDate
+    @Column(insertable = false)
     private LocalDateTime updatedOn;
 }

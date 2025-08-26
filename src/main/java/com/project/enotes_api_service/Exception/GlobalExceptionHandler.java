@@ -3,6 +3,7 @@ package com.project.enotes_api_service.Exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -30,5 +31,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
+    @ExceptionHandler(AlreadyExistException.class)
+    public ResponseEntity<String> handleAlreadyExistException(AlreadyExistException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<String>  handleObjectOptimisticLockingFailureException(ObjectOptimisticLockingFailureException error){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error.getMessage());
+    }
 
 }
