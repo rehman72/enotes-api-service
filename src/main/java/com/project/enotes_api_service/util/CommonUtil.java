@@ -1,7 +1,10 @@
 package com.project.enotes_api_service.util;
 
 import com.project.enotes_api_service.Handler.GenericResponse;
+import com.project.enotes_api_service.entity.FileDetails;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 public class CommonUtil {
@@ -40,5 +43,17 @@ public class CommonUtil {
                 .message(message)
                 .build();
         return response.create();
+    }
+
+    public static MediaType getContentType(FileDetails fileDetails) {
+        String extension = FilenameUtils.getExtension(fileDetails.getOriginalFileName());
+
+        return switch (extension) {
+            case "pdf" -> MediaType.APPLICATION_PDF;
+            case "jpg" -> MediaType.IMAGE_JPEG;
+            case "png" -> MediaType.IMAGE_PNG;
+            case "txt" -> MediaType.TEXT_PLAIN;
+            default -> MediaType.APPLICATION_OCTET_STREAM;
+        };
     }
 }

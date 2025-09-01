@@ -1,11 +1,11 @@
 package com.project.enotes_api_service.contoller;
 
 import com.project.enotes_api_service.dto.NotesDto;
+import com.project.enotes_api_service.entity.FileDetails;
 import com.project.enotes_api_service.service.NotesServiceImpl;
 import com.project.enotes_api_service.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +39,18 @@ public class NotesController {
             return ResponseEntity.noContent().build();
         }
         return CommonUtil.createBuildResponse(notesList,HttpStatus.OK);
+    }
+
+    @RequestMapping("/download/{id}")
+    public ResponseEntity<?> downloadFile(@PathVariable Integer id) throws Exception {
+        FileDetails fileDetails = notesService.getFileDetails(id);
+        byte[] bytes = notesService.downloadFile(fileDetails);
+        HttpHeaders httpHeaders=new HttpHeaders();
+        httpHeaders.setContentType(CommonUtil.getContentType(fileDetails));
+        httpHeaders.setContentDispositionFormData("attachment",fileDetails.getOriginalFileName());
+        return ResponseEntity.ok()
+                .headers(httpHeaders)
+                .body(bytes);
     }
 
 
