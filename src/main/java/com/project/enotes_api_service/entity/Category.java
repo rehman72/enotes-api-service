@@ -1,15 +1,13 @@
 package com.project.enotes_api_service.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @Entity
 @EntityListeners(AuditingEntityListener.class)
