@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
 
 @Slf4j
 @ControllerAdvice
@@ -40,6 +41,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleAlreadyExistException(AlreadyExistException ex) {
 //        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
         return CommonUtil.createErrorResponseMessage(ex.getMessage(),HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(ExtensionNotAllowedException.class)
+    public ResponseEntity<?> handleHttpClientErrorException(ExtensionNotAllowedException ex) {
+        return CommonUtil.createErrorResponseMessage(ex.getMessage(),HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 
 
