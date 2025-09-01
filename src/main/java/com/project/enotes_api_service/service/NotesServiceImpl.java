@@ -2,6 +2,7 @@ package com.project.enotes_api_service.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.enotes_api_service.Exception.ExtensionNotAllowedException;
+import com.project.enotes_api_service.Exception.ResourceNotFoundException;
 import com.project.enotes_api_service.dto.NotesDto;
 import com.project.enotes_api_service.entity.FileDetails;
 import com.project.enotes_api_service.entity.Notes;
@@ -15,9 +16,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -81,18 +85,17 @@ public  class NotesServiceImpl implements NotesService{
 
             String originalFilename = file.getOriginalFilename();
             String extension = FilenameUtils.getExtension(originalFilename);
-            List<String> allowedExtension=Arrays.asList("png","jpg","png");
+            List<String> allowedExtension=Arrays.asList("png","jpg","pdf","txt");
 
             if(!allowedExtension.contains(extension)){
                 throw new ExtensionNotAllowedException("Only png,jpg,pdf file are allowed!");
             }
             File saveFile=new File(uploadPath);
-            boolean directoryCreated=false;
             if(!saveFile.exists()){
-                directoryCreated=saveFile.mkdir();
+                saveFile.mkdir();
             }
             String uploadFileName = UUID.randomUUID().toString();
-            String storePath = uploadPath.concat(uploadFileName);
+            String storePath = uploadPath.concat(uploadFileName+"."+extension);
             long upload=Files.copy(file.getInputStream(),Paths.get(storePath));
             log.info("File Uploaded Successfully {}",upload);
             if(upload!=0){
@@ -122,6 +125,18 @@ public  class NotesServiceImpl implements NotesService{
             fileWithoutExtension+="."+fileextension;
         }
         return fileWithoutExtension;
+    }
+
+    @Override
+    public byte[] downloadFile(FileDetails fileDetail) throws Exception {
+        InputStream io=new FileInputStream(fileDetail.getPath());
+       return StreamUtils.copyToByteArray(io);
+    }
+
+    @Override
+    public FileDetails getFileDetails(Integer id) throws Exception {
+       return fileRepository.findById(id)
+                .orElseThrow(()->new ResourceNotFoundException("File Details Not Found with id"+id));
     }
 
 

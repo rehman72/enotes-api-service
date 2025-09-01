@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.client.HttpClientErrorException;
+import java.io.FileNotFoundException;
 
 @Slf4j
 @ControllerAdvice
@@ -48,5 +48,9 @@ public class GlobalExceptionHandler {
         return CommonUtil.createErrorResponseMessage(ex.getMessage(),HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 
+    @ExceptionHandler(FileNotFoundException.class)
+    public ResponseEntity<?> handleFileNotFoundException(FileNotFoundException ex) {
+        return CommonUtil.createErrorResponseMessage(ex.getMessage(),HttpStatus.NOT_FOUND);
+    }
 
 }
