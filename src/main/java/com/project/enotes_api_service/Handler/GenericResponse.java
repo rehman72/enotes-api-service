@@ -5,8 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 @Setter
@@ -25,9 +25,12 @@ public class GenericResponse {
     private Object data;
 
     public ResponseEntity<?> create(){
-        Map<String,Object> map=new ConcurrentHashMap<>();
-        map.put("status",responseStatus); //success/fail
-        map.put("message",message); //saved Success
+        Map<String,Object> map=new LinkedHashMap<>();
+        map.put("message",message);//saved Success
+        if(!ObjectUtils.isEmpty(status)){
+            map.put("status",status);
+        }
+        map.put("httpStatus",responseStatus); //success/fail
         if(!ObjectUtils.isEmpty(data)){ //data body
             map.put("data",data);
         }

@@ -19,7 +19,7 @@ public class BaseModel {
     @Column(
     updatable = false
     )
-    private Integer createBy;
+    private Integer createdBy;
 
     @CreatedDate
     @Column(updatable = false)

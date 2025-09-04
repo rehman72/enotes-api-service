@@ -1,6 +1,7 @@
 package com.project.enotes_api_service.contoller;
 
 import com.project.enotes_api_service.dto.NotesDto;
+import com.project.enotes_api_service.dto.NotesResponseDto;
 import com.project.enotes_api_service.entity.FileDetails;
 import com.project.enotes_api_service.service.NotesServiceImpl;
 import com.project.enotes_api_service.util.CommonUtil;
@@ -53,6 +54,15 @@ public class NotesController {
                 .body(bytes);
     }
 
+    @GetMapping("/user-notes")
+    public ResponseEntity<?> getAllNotesByUser(
+            @RequestParam(value = "pageNo",defaultValue = "0") Integer pageNo,
+            @RequestParam(value = "PageSize",defaultValue = "1") Integer pageSize
+            ) throws Exception{
+      Integer userId=1;
+        NotesResponseDto allNotesByUser = notesService.getAllNotesByUser(userId,pageNo,pageSize);
+        return CommonUtil.createBuildResponse(allNotesByUser,HttpStatus.OK);
+    }
 
 
 }
