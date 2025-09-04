@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.enotes_api_service.Exception.ExtensionNotAllowedException;
 import com.project.enotes_api_service.Exception.ResourceNotFoundException;
 import com.project.enotes_api_service.dto.NotesDto;
+import com.project.enotes_api_service.dto.NotesResponseDto;
 import com.project.enotes_api_service.entity.FileDetails;
 import com.project.enotes_api_service.entity.Notes;
 import com.project.enotes_api_service.repository.FileRepository;
@@ -13,6 +14,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -137,6 +141,27 @@ public  class NotesServiceImpl implements NotesService{
     public FileDetails getFileDetails(Integer id) throws Exception {
        return fileRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("File Details Not Found with id"+id));
+    }
+
+    @Override
+        public NotesResponseDto getAllNotesByUser(Integer userId,Integer pageNo,Integer pageSize)  throws Exception{
+        Pageable pageRequest= PageRequest.of(pageNo,pageSize);
+        Page<Notes> notes = notesRepository.findBycreatedBy(userId,pageRequest);
+        if(notes.isEmpty()){
+            throw new Exception("The User has no Notes");
+        }
+        List<NotesDto> notesDtoList = notes.get()
+                .map(n -> modelMapper.map(n, NotesDto.class)).toList();
+
+        return NotesResponseDto.builder()
+                .notes(notesDtoList)
+                .pageNo(pageRequest.getPageNumber())
+                .pageSize(pageRequest.getPageSize())
+                .totalElements(notes.getTotalElements())
+                .totalPages(notes.getTotalPages())
+                .isFirst(notes.isFirst())
+                .isLast(notes.isLast())
+                .build();
     }
 
 
