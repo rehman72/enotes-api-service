@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,22 +55,49 @@ public  class NotesServiceImpl implements NotesService{
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean savedNotes(String  notes,MultipartFile file) throws Exception {
+//        Object Mapper for to Convert Json to Java Object
         ObjectMapper objectMapper = new ObjectMapper();
+//        Reading Values of json and mapping the fields to Java Class Object
         NotesDto notesDto = objectMapper.readValue(notes, NotesDto.class);
+
+        notesDto.setIsDeleted(false);
+        notesDto.setDeletedOn(null);
+//       update notes if id is given in the request body
+        if(!ObjectUtils.isEmpty(notesDto.getId())){
+            updateNotes(notesDto,file);
+        }
+//         if the file is not Empty then the file details are saved in DB || it will get NULL
         FileDetails fileDetail= saveFileDetails(file);
+//        map the values of notesdto to Real Enitites of Notes
         Notes notesMap = modelMapper.map(notesDto, Notes.class);
+//        check Category Id is present or Not in Category Table
         categoryService.getCategoryById(notesMap.getCategory().getId());
+//        if the File Details Object is not Null then set FileDetails values in Notes Object
         if(!ObjectUtils.isEmpty(fileDetail)){
             notesMap.setFileDetails(fileDetail);
+        }else {
+//          The File is not Passed.
+            if(ObjectUtils.isEmpty(notesDto.getId())){
+                notesMap.setFileDetails(null);
+            }
         }
 
-        Notes save = notesRepository.save(notesMap);
-        if(!ObjectUtils.isEmpty(save)){
+        Notes saveNotes = notesRepository.save(notesMap);
+        if(!ObjectUtils.isEmpty(saveNotes)){
             return true;
-        }else {
-            notesMap.setFileDetails(null);
         }
         return false;
+    }
+
+    private void updateNotes(NotesDto notesDto, MultipartFile file) throws Exception {
+//        First Check if the notes id which is pass it exist in notes table or not
+        Notes notes = notesRepository.findById(notesDto.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Notes Not found with this id"));
+//      if the user has not provided File then fetch fileDetails from DB for the corresponding notes id
+//      set the notesDto as fileDetails
+        if(ObjectUtils.isEmpty(file)){
+            notesDto.setFileDetails(modelMapper.map(notes.getFileDetails(), NotesDto.FileDetailsDto.class));
+        }
     }
 
     @Override
@@ -118,15 +146,13 @@ public  class NotesServiceImpl implements NotesService{
     }
 
     private String getDisplayName(String originalFilename) {
-//        Java_programming_tutorial.pdf
-        String fileextension = FilenameUtils.getExtension(originalFilename);
+        String extension = FilenameUtils.getExtension(originalFilename);
         String fileWithoutExtension = FilenameUtils.removeExtension(originalFilename);
-        if(fileWithoutExtension.length()>8){ //true
-//            Java_progra.pdf
-            fileWithoutExtension=fileWithoutExtension.substring(0, 10);
-            fileWithoutExtension=fileWithoutExtension+"."+fileextension;
+        if(fileWithoutExtension.length()>8){
+            fileWithoutExtension=fileWithoutExtension.substring(0, Math.min(fileWithoutExtension.length(),10));
+            fileWithoutExtension=fileWithoutExtension+"."+extension;
         }else{
-            fileWithoutExtension+="."+fileextension;
+            fileWithoutExtension+="."+extension;
         }
         return fileWithoutExtension;
     }
@@ -146,7 +172,7 @@ public  class NotesServiceImpl implements NotesService{
     @Override
         public NotesResponseDto getAllNotesByUser(Integer userId,Integer pageNo,Integer pageSize)  throws Exception{
         Pageable pageRequest= PageRequest.of(pageNo,pageSize);
-        Page<Notes> notes = notesRepository.findBycreatedBy(userId,pageRequest);
+        Page<Notes> notes = notesRepository.findByCreatedByAndIsDeletedFalse(userId,pageRequest);
         if(notes.isEmpty()){
             throw new Exception("The User has no Notes");
         }
@@ -164,5 +190,30 @@ public  class NotesServiceImpl implements NotesService{
                 .build();
     }
 
+    @Override
+    public void softDeleteNotes(Integer id)  throws Exception{
+        Notes notes = notesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes id Invalid!Not Found"));
+        notes.setIsDeleted(true);
+        notes.setDeletedOn(new Date());
+        notesRepository.save(notes);
+    }
 
+    @Override
+    public void restoreNotes(Integer id) throws  Exception {
+        Notes notes = notesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes id Invalid! Not Found"));
+
+        notes.setIsDeleted(false);
+        notes.setDeletedOn(null);
+        notesRepository.save(notes);
+    }
+
+    @Override
+    public List<NotesDto> getUserRecycleBin(Integer userId) {
+        List<Notes> notesList = notesRepository.findByCreatedByAndIsDeletedTrue(userId);
+        return notesList.stream()
+                .map(notes -> modelMapper.map(notes, NotesDto.class))
+                .toList();
+    }
 }
