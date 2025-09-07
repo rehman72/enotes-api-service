@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @AllArgsConstructor
@@ -32,5 +32,5 @@ public class Notes extends BaseModel {
 
     private Boolean isDeleted;
 
-    private Date deletedOn;
+    private LocalDateTime deletedOn;
 }

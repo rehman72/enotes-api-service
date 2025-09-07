@@ -28,10 +28,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -195,7 +193,7 @@ public  class NotesServiceImpl implements NotesService{
         Notes notes = notesRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Notes id Invalid!Not Found"));
         notes.setIsDeleted(true);
-        notes.setDeletedOn(new Date());
+        notes.setDeletedOn(LocalDateTime.now());
         notesRepository.save(notes);
     }
 
@@ -215,5 +213,32 @@ public  class NotesServiceImpl implements NotesService{
         return notesList.stream()
                 .map(notes -> modelMapper.map(notes, NotesDto.class))
                 .toList();
+    }
+
+    @Override
+    public void hardDeleteNotes(Integer id) throws  Exception {
+        Notes notes = notesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes with this id not Found!"));
+        if(notes.getIsDeleted()){
+            notesRepository.delete(notes);
+        }else{
+            throw new IllegalArgumentException("You cannot Hard delete Directly");
+        }
+    }
+
+    @Override
+    public void emptyRecycleBin(Integer userId)  throws Exception{
+        List<Notes> deletedNotes = notesRepository.findAllByCreatedByAndIsDeletedTrue((userId));
+
+        if(!deletedNotes.isEmpty()){
+            List<Integer> list = deletedNotes.stream()
+                    .map(Notes::getId)
+                    .toList();
+            notesRepository.deleteAllById(list);
+        }
+        else{
+            throw new Exception("The User has no Notes in Recycle Bin");
+        }
+
     }
 }
