@@ -1,5 +1,6 @@
 package com.project.enotes_api_service.repository;
 
+import com.project.enotes_api_service.entity.FileDetails;
 import com.project.enotes_api_service.entity.Notes;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,4 +17,6 @@ public interface NotesRepository extends JpaRepository<Notes, Integer> {
     List<Notes> findAllByIsDeletedAndDeletedOnBefore(boolean b, LocalDateTime localDateTime);
 
     List<Notes> findAllByCreatedByAndIsDeletedTrue(Integer createdBy);
+
+    boolean existsByFileDetailsAndIsDeletedFalse(FileDetails existingFile);
 }
