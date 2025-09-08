@@ -3,12 +3,16 @@ package com.project.enotes_api_service.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.enotes_api_service.Exception.ExtensionNotAllowedException;
 import com.project.enotes_api_service.Exception.ResourceNotFoundException;
+import com.project.enotes_api_service.dto.FavoriteNotesDto;
 import com.project.enotes_api_service.dto.NotesDto;
 import com.project.enotes_api_service.dto.NotesResponseDto;
+import com.project.enotes_api_service.entity.FavouriteNotes;
 import com.project.enotes_api_service.entity.FileDetails;
 import com.project.enotes_api_service.entity.Notes;
+import com.project.enotes_api_service.repository.FavouriteNotesRepo;
 import com.project.enotes_api_service.repository.FileRepository;
 import com.project.enotes_api_service.repository.NotesRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
@@ -26,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.lang.module.ResolutionException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -37,6 +42,9 @@ public  class NotesServiceImpl implements NotesService{
 
     @Autowired
     private NotesRepository notesRepository;
+
+    @Autowired
+    private FavouriteNotesRepo favouriteNotesRepo;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -99,7 +107,7 @@ public  class NotesServiceImpl implements NotesService{
     }
 
     @Override
-    public List<NotesDto> geAllNotes() {
+    public List<NotesDto> getAllNotes() {
        return notesRepository.findAll()
                 .stream()
                 .map(notes->modelMapper.map(notes,NotesDto.class))
@@ -108,11 +116,16 @@ public  class NotesServiceImpl implements NotesService{
 
     public FileDetails saveFileDetails(MultipartFile file) throws Exception {
         if(!ObjectUtils.isEmpty(file) && !file.isEmpty()){
-            Boolean exists = fileRepository.existsByOriginalFileName(file.getOriginalFilename());
-            if(exists) {
-                throw new Exception("File Already Exists");
+            Optional<FileDetails> byOriginalFileName = fileRepository.findByOriginalFileName(file.getOriginalFilename());
+            if(byOriginalFileName.isPresent()){
+                FileDetails existingFile = byOriginalFileName.get();
+                boolean isUsedByActiveNote = notesRepository.existsByFileDetailsAndIsDeletedFalse(existingFile);
+                if (isUsedByActiveNote){
+                    throw new Exception("File Already in Used By Other Notes");
+                }else{
+                    return existingFile;
+                }
             }
-
             String originalFilename = file.getOriginalFilename();
             String extension = FilenameUtils.getExtension(originalFilename);
             List<String> allowedExtension=Arrays.asList("png","jpg","pdf","txt");
@@ -240,5 +253,33 @@ public  class NotesServiceImpl implements NotesService{
             throw new Exception("The User has no Notes in Recycle Bin");
         }
 
+    }
+
+    @Override
+    public void favoriteNotes(Integer notesId) throws Exception {
+        Integer userId=1;
+        Notes notes = notesRepository.findById(notesId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes Not Found with this id"));
+        FavouriteNotes favouriteNotes = FavouriteNotes.builder()
+                .notes(notes)
+                .userId(userId)
+                .build();
+        favouriteNotesRepo.save(favouriteNotes);
+    }
+
+    @Override
+    public void unfavoriteNotes(Integer favouriteId) throws Exception {
+        FavouriteNotes favouriteNotes = favouriteNotesRepo.findById(favouriteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes Not Found with this id"));
+        favouriteNotesRepo.delete(favouriteNotes);
+    }
+
+    @Override
+    public List<FavoriteNotesDto> getUserFavoriteNotes(){
+        Integer userId=1;
+        List<FavouriteNotes> favouriteNotes = favouriteNotesRepo.findByUserId(userId);
+         return favouriteNotes.stream()
+                .map(favourite->modelMapper.map(favourite,FavoriteNotesDto.class))
+                .toList();
     }
 }

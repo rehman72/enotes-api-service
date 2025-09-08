@@ -1,8 +1,10 @@
 package com.project.enotes_api_service.service;
 
+import com.project.enotes_api_service.dto.FavoriteNotesDto;
 import com.project.enotes_api_service.dto.NotesDto;
 import com.project.enotes_api_service.dto.NotesResponseDto;
 import com.project.enotes_api_service.entity.FileDetails;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
@@ -10,7 +12,7 @@ public interface NotesService {
 
     Boolean savedNotes(String notes, MultipartFile file) throws Exception;
 
-    List<NotesDto> geAllNotes();
+    List<NotesDto> getAllNotes();
 
     byte[] downloadFile(FileDetails id) throws Exception;
 
@@ -28,5 +30,10 @@ public interface NotesService {
 
     void emptyRecycleBin(Integer userId) throws Exception;
 
+    void favoriteNotes(Integer notesId) throws Exception;
+
+    void unfavoriteNotes(Integer notesId) throws Exception;
+
+    List<FavoriteNotesDto> getUserFavoriteNotes() throws Exception;
 }
 
