@@ -58,7 +58,7 @@ public class NotesController {
     @GetMapping("/user-notes")
     public ResponseEntity<?> getAllNotesByUser(
             @RequestParam(value = "pageNo",defaultValue = "0") Integer pageNo,
-            @RequestParam(value = "PageSize",defaultValue = "1") Integer pageSize
+            @RequestParam(value = "pageSize",defaultValue = "1") Integer pageSize
             ) throws Exception{
       Integer userId=1;
         NotesResponseDto allNotesByUser = notesService.getAllNotesByUser(userId,pageNo,pageSize);
@@ -122,6 +122,15 @@ public class NotesController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return CommonUtil.createBuildResponse(userFavoriteNotes,HttpStatus.OK);
+    }
+
+    @GetMapping("/copy/{notesId}")
+    public ResponseEntity<?> copyNotes(@PathVariable Integer notesId) throws Exception{
+        Boolean isCopied = notesService.copyNotes(notesId);
+        if(!isCopied){
+            return CommonUtil.createErrorResponseMessage("Copy Failed Notes",HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return CommonUtil.createBuildResponseMessage("Copied Success",HttpStatus.OK);
     }
 
 }
