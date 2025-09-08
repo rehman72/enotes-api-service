@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Setter
 @Getter
+@Builder
 @EntityListeners(AuditingEntityListener.class)
 public class Notes extends BaseModel {
 
