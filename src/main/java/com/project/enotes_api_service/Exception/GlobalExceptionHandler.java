@@ -19,6 +19,11 @@ public class GlobalExceptionHandler {
         return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleException(IllegalArgumentException e){
+        return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<?> nullPointerExceptionHandler(Exception e){
 //        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

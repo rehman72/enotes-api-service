@@ -1,15 +1,27 @@
 package com.project.enotes_api_service.util;
 
+import com.project.enotes_api_service.Enums.TodoStatus;
 import com.project.enotes_api_service.Exception.ValidationException;
 import com.project.enotes_api_service.dto.CategoryDto;
+import com.project.enotes_api_service.dto.TodoDto;
+import com.project.enotes_api_service.dto.UserDto;
+import com.project.enotes_api_service.entity.Role;
+import com.project.enotes_api_service.repository.RoleRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
 public class Validation {
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     public void CategoryValidation(CategoryDto categoryDto){
         Map<String,Object> error=new LinkedHashMap<>();
@@ -39,6 +51,55 @@ public class Validation {
         }else if(description.length()<10 || description.length()>25){
             error.put("description","Description Field Must be minimum  10 to 25 characters");
         }
+    }
+
+    public static void todoValidation(TodoDto todoDto){
+        TodoDto.StatusDto status = todoDto.getStatus();
+        boolean isValid=false;
+        for(TodoStatus  statusDto:TodoStatus.values()){
+            if(statusDto.getId().equals(status.getId())){
+               isValid=true;
+            }
+        }
+        if(!isValid){
+            throw new IllegalArgumentException("Invalid Status");
+        }
+    }
+
+    public void userValidation(UserDto userDto){
+        if(!StringUtils.hasText(userDto.getFirstName())){
+            throw new IllegalArgumentException("User First Name is Invalid1");
+        }
+        if(!StringUtils.hasText(userDto.getLastName())){
+            throw new IllegalArgumentException("last Name is Invalid!");
+        }
+
+        if(!StringUtils.hasText(userDto.getEmail()) && !userDto.getEmail().matches(Constants.emailRegex)){
+            throw new IllegalArgumentException("Email is Invalid!");
+        }
+
+        if(!StringUtils.hasText(userDto.getMobNo()) || !userDto.getMobNo().matches(Constants.mobileRegex)){
+            throw new IllegalArgumentException("mob is Invalid");
+        }
+
+        if(CollectionUtils.isEmpty(userDto.getRoles())){
+            throw  new IllegalArgumentException("Role Cannot be Empty!");
+        }else{
+            List<Integer> list = roleRepository.findAll()
+                    .stream()
+                    .map(Role::getId)
+                    .toList();
+            List<Integer> invalidRoleIds = userDto.getRoles().stream()
+                    .map(UserDto.RoleDto::getId)
+                    .filter(ids->!list.contains(ids))
+                    .toList();
+            if(!CollectionUtils.isEmpty(invalidRoleIds)){
+                throw new IllegalArgumentException("Invalid Role Id"+invalidRoleIds);
+            }
+
+        }
+
+
     }
 
 }
