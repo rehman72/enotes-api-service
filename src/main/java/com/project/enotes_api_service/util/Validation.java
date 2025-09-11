@@ -1,12 +1,14 @@
 package com.project.enotes_api_service.util;
 
 import com.project.enotes_api_service.Enums.TodoStatus;
+import com.project.enotes_api_service.Exception.AlreadyExistException;
 import com.project.enotes_api_service.Exception.ValidationException;
 import com.project.enotes_api_service.dto.CategoryDto;
 import com.project.enotes_api_service.dto.TodoDto;
 import com.project.enotes_api_service.dto.UserDto;
 import com.project.enotes_api_service.entity.Role;
 import com.project.enotes_api_service.repository.RoleRepository;
+import com.project.enotes_api_service.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -22,6 +24,9 @@ public class Validation {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public void CategoryValidation(CategoryDto categoryDto){
         Map<String,Object> error=new LinkedHashMap<>();
@@ -76,6 +81,11 @@ public class Validation {
 
         if(!StringUtils.hasText(userDto.getEmail()) && !userDto.getEmail().matches(Constants.emailRegex)){
             throw new IllegalArgumentException("Email is Invalid!");
+        }else{
+            boolean exists = userRepository.existsByEmail((userDto.getEmail()));
+            if(exists){
+                throw new AlreadyExistException("This Email is already Registered!");
+            }
         }
 
         if(!StringUtils.hasText(userDto.getMobNo()) || !userDto.getMobNo().matches(Constants.mobileRegex)){
