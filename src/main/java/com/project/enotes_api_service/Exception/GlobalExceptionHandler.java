@@ -4,12 +4,14 @@ import com.project.enotes_api_service.util.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.mail.MailSendException;
+import org.springframework.web.bind.annotation.*;
+
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 
 @Slf4j
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
@@ -56,6 +58,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FileNotFoundException.class)
     public ResponseEntity<?> handleFileNotFoundException(FileNotFoundException ex) {
         return CommonUtil.createErrorResponseMessage(ex.getMessage(),HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(MailSendException.class)
+//    @ResponseBody
+//    @ResponseStatus
+    public ResponseEntity<?> handleMailSendException(MailSendException e){
+        Exception[] error=e.getMessageExceptions();
+        String message = Arrays.stream(error)
+                .findFirst()
+                .get()
+                .getMessage();
+        log.info("MailSendException:: handleMailSendException :: {}",message);
+        return CommonUtil.createErrorResponseMessage(message,HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }
