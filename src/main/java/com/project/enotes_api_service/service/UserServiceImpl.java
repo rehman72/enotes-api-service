@@ -2,6 +2,7 @@ package com.project.enotes_api_service.service;
 
 import com.project.enotes_api_service.dto.EmailRequest;
 import com.project.enotes_api_service.dto.UserDto;
+import com.project.enotes_api_service.entity.AccountStatus;
 import com.project.enotes_api_service.entity.Role;
 import com.project.enotes_api_service.entity.User;
 import com.project.enotes_api_service.repository.RoleRepository;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -39,6 +41,12 @@ public class UserServiceImpl implements UserService {
       validation.userValidation(userDto);
         User user = modelMapper.map(userDto, User.class);
         setRole(userDto,user);
+        AccountStatus accountStatus=AccountStatus
+                .builder()
+                .isActive(false)
+                .verificationCode(UUID.randomUUID().toString())
+                .build();
+        user.setAccountStatus(accountStatus);
         User save = userRepository.save(user);
         if(ObjectUtils.isEmpty(save)){
            return false;
@@ -49,11 +57,16 @@ public class UserServiceImpl implements UserService {
 
     private void mailSend(User savedUser) throws Exception {
 
-        String message="Hi,<b>"+ savedUser.getFirstName()+"</b>" +
-                "<br> Your account register sucessfully<br>"+
-                "<br> Click the Below Link and verify & Active Account your Account <br>"+
-                "<a href='#'> Click Here </a> <br> <br>"+
+        String message="Hi,<b>"+"[[username]]"+"</b>" +
+                "<br> Your account register successfully<br>"+
+                "<br> Click the Below Link and verify & Active your Account <br>"+
+                "<a href='[[url]]'>Click Here </a> <br> <br>"+
                 "Thanks,<br>Enotes.com";
+
+        message=message.replace("[[username]]",savedUser.getFirstName());
+        message=message.replace("[[url]]",
+                "http://localhost:8080/api/v1/Home/verify?id="+savedUser.getId()
+                        +"&&verificationCode="+savedUser.getAccountStatus().getVerificationCode());
         EmailRequest emailRequest=EmailRequest
                 .builder()
                 .to(savedUser.getEmail())
