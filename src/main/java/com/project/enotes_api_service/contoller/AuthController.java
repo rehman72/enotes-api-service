@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/user")
-public class UserController {
+public class AuthController {
 
     @Autowired
     private UserService userService;
 
 
     @PostMapping("/")
-    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto){
+    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) throws Exception {
         Boolean registered = userService.register(userDto);
         if(registered){
            return CommonUtil.createBuildResponseMessage("User Registered Success", HttpStatus.CREATED);
