@@ -2,12 +2,17 @@ package com.project.enotes_api_service.util;
 
 import com.project.enotes_api_service.Handler.GenericResponse;
 import com.project.enotes_api_service.entity.FileDetails;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 public class CommonUtil {
+
+    private static final Logger log = LogManager.getLogger(CommonUtil.class);
 
     public  static ResponseEntity<?> createBuildResponse(Object data, HttpStatus status) {
         GenericResponse response = GenericResponse.builder()
@@ -56,4 +61,12 @@ public class CommonUtil {
             default -> MediaType.APPLICATION_OCTET_STREAM;
         };
     }
+
+    public static String getUrl(HttpServletRequest serverRequest) {
+        String  fullUrl = serverRequest.getRequestURL().toString();
+        String apiEndpoint = serverRequest.getServletPath();
+        String replacedString = fullUrl.replace(apiEndpoint, "");
+        log.info("Replaced Endpoint: {}", replacedString);
+        return replacedString;
+ }
 }
