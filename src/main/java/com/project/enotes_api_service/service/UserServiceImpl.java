@@ -17,6 +17,7 @@ import org.springframework.util.ObjectUtils;
 import java.util.List;
 import java.util.UUID;
 
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -37,42 +38,40 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public Boolean register(UserDto userDto) throws Exception {
+    public Boolean register(UserDto userDto, String url) throws Exception {
       validation.userValidation(userDto);
         User user = modelMapper.map(userDto, User.class);
         setRole(userDto,user);
-        AccountStatus accountStatus=AccountStatus
+        AccountStatus accountStatus= AccountStatus
                 .builder()
                 .isActive(false)
                 .verificationCode(UUID.randomUUID().toString())
                 .build();
         user.setAccountStatus(accountStatus);
         User save = userRepository.save(user);
-        if(ObjectUtils.isEmpty(save)){
-           return false;
+        if(ObjectUtils.isEmpty(save)) {
+            return false;
         }
-        mailSend(save);
+        mailSend(save,url);
         return true;
     }
 
-    private void mailSend(User savedUser) throws Exception {
-
-        String message="Hi,<b>"+"[[username]]"+"</b>" +
+    private void mailSend(User savedUser,String requestUrl) throws Exception {
+        String mailSendBody="Hi,<b>"+"[[username]]"+"</b>" +
                 "<br> Your account register successfully<br>"+
                 "<br> Click the Below Link and verify & Active your Account <br>"+
                 "<a href='[[url]]'>Click Here </a> <br> <br>"+
                 "Thanks,<br>Enotes.com";
 
-        message=message.replace("[[username]]",savedUser.getFirstName());
-        message=message.replace("[[url]]",
-                "http://localhost:8080/api/v1/Home/verify?id="+savedUser.getId()
+        mailSendBody=mailSendBody.replace("[[username]]",savedUser.getFirstName());
+        mailSendBody=mailSendBody.replace("[[url]]", requestUrl+"/api/v1/Home/verify?id="+savedUser.getId()
                         +"&&verificationCode="+savedUser.getAccountStatus().getVerificationCode());
         EmailRequest emailRequest=EmailRequest
                 .builder()
                 .to(savedUser.getEmail())
                 .title("Account Creation Confirmation")
                 .Subject("Account Created Successfully")
-                .message(message)
+                .message(mailSendBody)
                 .build();
 
         emailSendService.send(emailRequest);

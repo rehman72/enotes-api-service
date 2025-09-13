@@ -3,6 +3,7 @@ package com.project.enotes_api_service.contoller;
 import com.project.enotes_api_service.dto.UserDto;
 import com.project.enotes_api_service.service.UserService;
 import com.project.enotes_api_service.util.CommonUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +21,9 @@ public class AuthController {
 
 
     @PostMapping("/")
-    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) throws Exception {
-        Boolean registered = userService.register(userDto);
+    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto, HttpServletRequest serverRequest) throws Exception {
+        String url = CommonUtil.getUrl(serverRequest);
+        Boolean registered = userService.register(userDto,url);
         if(registered){
            return CommonUtil.createBuildResponseMessage("User Registered Success", HttpStatus.CREATED);
         }else{
