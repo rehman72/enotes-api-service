@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSendException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.FileNotFoundException;
@@ -17,38 +18,40 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleException(Exception e){
         log.error("GobalExceptionHandler:: handleException ::",e.getMessage());
-//        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<?> handleBadCredentials(BadCredentialsException e){
+        return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.BAD_REQUEST);
+    }
 
 
     @ExceptionHandler(SuccessException.class)
     public ResponseEntity<?> handleSuccessException(SuccessException e){
         return CommonUtil.createBuildResponseMessage(e.getMessage(),HttpStatus.OK);
     }
+    @ExceptionHandler(AccountNotVerifiedException.class)
+    public ResponseEntity<?> handleSuccessException(AccountNotVerifiedException e){
+        return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.FORBIDDEN);
+    }
 
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<?> nullPointerExceptionHandler(Exception e){
-//        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<?> validationExceptionHandler(ValidationException exception){
-//        return new ResponseEntity<>(exception.getError(), HttpStatus.BAD_REQUEST);
         return CommonUtil.createErrorResponse(exception.getError(),HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<?> handleResourceNotFoundException(ResourceNotFoundException ex) {
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         return CommonUtil.createErrorResponseMessage(ex.getMessage(),HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(AlreadyExistException.class)
     public ResponseEntity<?> handleAlreadyExistException(AlreadyExistException ex) {
-//        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
         return CommonUtil.createErrorResponseMessage(ex.getMessage(),HttpStatus.CONFLICT);
     }
 
