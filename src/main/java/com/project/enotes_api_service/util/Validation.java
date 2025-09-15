@@ -64,6 +64,7 @@ public class Validation {
         for(TodoStatus  statusDto:TodoStatus.values()){
             if(statusDto.getId().equals(status.getId())){
                isValid=true;
+               break;
             }
         }
         if(!isValid){
@@ -79,7 +80,7 @@ public class Validation {
             throw new IllegalArgumentException("last Name is Invalid!");
         }
 
-        if(!StringUtils.hasText(userDto.getEmail()) && !userDto.getEmail().matches(Constants.emailRegex)){
+        if(!StringUtils.hasText(userDto.getEmail()) || !userDto.getEmail().matches(Constants.emailRegex)){
             throw new IllegalArgumentException("Email is Invalid!");
         }else{
             boolean exists = userRepository.existsByEmail((userDto.getEmail()));
