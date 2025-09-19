@@ -9,9 +9,11 @@ import com.project.enotes_api_service.dto.UserDto;
 import com.project.enotes_api_service.entity.AccountStatus;
 import com.project.enotes_api_service.entity.Role;
 import com.project.enotes_api_service.entity.User;
+import com.project.enotes_api_service.jwt.JwtService;
 import com.project.enotes_api_service.repository.RoleRepository;
 import com.project.enotes_api_service.repository.UserRepository;
 import com.project.enotes_api_service.util.Validation;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,11 +24,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
+import javax.management.relation.RoleNotFoundException;
 import java.util.List;
 import java.util.UUID;
 
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     @Autowired
@@ -50,6 +54,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JwtService jwtService;
+
     @Override
     @Transactional
     public Boolean register(UserDto userDto, String url) throws Exception {
@@ -72,17 +79,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public LoginResponse login(LoginRequest loginRequest) {
+    public LoginResponse login(LoginRequest loginRequest){
         Authentication authenticate = authenticationManager.authenticate
                 (new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
         CustomUserDetails user = (CustomUserDetails) authenticate.getPrincipal();
         if(!user.getUser().getAccountStatus().getIsActive()){
             throw new AccountNotVerifiedException("Your account is not yet activated. Please check your email for the activation link.");
         }
+        String token = jwtService.generateToken(user.getUser());
         if (authenticate.isAuthenticated()) {
             LoginResponse loginResponse=LoginResponse
                     .builder()
-                    .token(UUID.randomUUID().toString())
+                    .token(token)
                     .user(modelMapper.map(user.getUser(),UserDto.class))
                      .build();
              return loginResponse;

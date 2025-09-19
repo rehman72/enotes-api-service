@@ -1,14 +1,19 @@
 package com.project.enotes_api_service.Exception;
 
 import com.project.enotes_api_service.util.CommonUtil;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.security.SecurityException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSendException;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.FileNotFoundException;
+
 import java.util.Arrays;
 
 @Slf4j
@@ -16,19 +21,40 @@ import java.util.Arrays;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleException(Exception e){
+    public ProblemDetail handleException(Exception e){
         log.error("GobalExceptionHandler:: handleException ::",e.getMessage());
-        return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<?> handleBadCredentials(BadCredentialsException e){
-        return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.BAD_REQUEST);
+        ProblemDetail errorDetails=null;
+        if(e instanceof AuthenticationException){
+             errorDetails=ProblemDetail.
+                    forStatusAndDetail(HttpStatus.valueOf(401),e.getMessage());
+            errorDetails.setProperty("access_denied_reason","Authentication Failure");
+            return errorDetails;
+        }
+        if(e instanceof AccessDeniedException){
+             errorDetails=ProblemDetail
+                    .forStatusAndDetail(HttpStatus.valueOf(403),e.getMessage());
+            errorDetails.setProperty("access_denied_reason","Not_Authorized");
+        }
+
+        if(e instanceof SecurityException){
+            errorDetails=ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(403),e.getMessage());
+            errorDetails.setProperty("access_denied_reason","Invalid Signature");
+        }
+        if(e instanceof ExpiredJwtException){
+            errorDetails=ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(403),e.getMessage());
+            errorDetails.setProperty("access_denied_reason","Token Expired!");
+        }
+        return errorDetails;
     }
 
 
     @ExceptionHandler(SuccessException.class)
     public ResponseEntity<?> handleSuccessException(SuccessException e){
         return CommonUtil.createBuildResponseMessage(e.getMessage(),HttpStatus.OK);
+    }
+    @ExceptionHandler(JwtTokenExpiredException.class)
+    public ResponseEntity<?> handleJwtTokenExpiredException(JwtTokenExpiredException e){
+        return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.UNAUTHORIZED);
     }
     @ExceptionHandler(AccountNotVerifiedException.class)
     public ResponseEntity<?> handleSuccessException(AccountNotVerifiedException e){
