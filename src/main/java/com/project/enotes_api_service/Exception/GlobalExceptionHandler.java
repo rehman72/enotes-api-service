@@ -2,6 +2,7 @@ package com.project.enotes_api_service.Exception;
 
 import com.project.enotes_api_service.util.CommonUtil;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.security.SecurityException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,10 @@ public class GlobalExceptionHandler {
         if(e instanceof ExpiredJwtException){
             errorDetails=ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(403),e.getMessage());
             errorDetails.setProperty("access_denied_reason","Token Expired!");
+        }
+        if(e instanceof JwtException){
+            errorDetails=ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(401),e.getMessage());
+            errorDetails.setProperty("access_denied_reason","Invalid Token!");
         }
         return errorDetails;
     }
