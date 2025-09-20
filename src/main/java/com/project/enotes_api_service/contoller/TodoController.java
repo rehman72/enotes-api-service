@@ -6,6 +6,7 @@ import com.project.enotes_api_service.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,7 +22,9 @@ public class TodoController {
     @Autowired
     private TodoService todoService;
 
+
     @RequestMapping("/save-todo")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<?> saveTodo(@RequestBody TodoDto todoDto) {
         Boolean isSaved = todoService.saveTodo(todoDto);
         if (isSaved) {
@@ -32,6 +35,7 @@ public class TodoController {
     }
 
     @RequestMapping("/{todoId}")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<?> getTodo(@PathVariable Integer todoId) throws Exception {
         TodoDto todo = todoService.getTodoById(todoId);
         if (!ObjectUtils.isEmpty(todo)) {
@@ -42,6 +46,7 @@ public class TodoController {
     }
 
     @RequestMapping("/list")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<?> getTodoByUser() throws Exception {
         List<TodoDto> todoList = todoService.getTodoByUser();
         if (!ObjectUtils.isEmpty(todoList)) {

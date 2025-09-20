@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,7 @@ public class CategoryController {
     private Validation validation;
 
     @PostMapping("/save-category")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<?> saveCategory(@RequestBody CategoryDto category){
         Boolean isSaved = categoryService.saveCategory(category);
         validation.CategoryValidation(category);
@@ -37,7 +39,8 @@ public class CategoryController {
         }
     }
 
-    @GetMapping("/Category")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') ")
+    @GetMapping("/")
     public ResponseEntity<?> getAllCategory(){
         List<CategoryDto> allCategories = categoryService.getAllCategory();
         if(CollectionUtils.isEmpty(allCategories)){
@@ -47,6 +50,7 @@ public class CategoryController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     @GetMapping("/active-Category")
     public ResponseEntity<?> getActiveCategory(){
         List<CategoryResponseDto> allCategories = categoryService.getActiveCategory();
@@ -60,6 +64,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') ")
     public ResponseEntity<?> getCategoryById(@PathVariable("id") Integer id) throws Exception {
         CategoryDto categoryById = categoryService.getCategoryById(id);
         if(ObjectUtils.isEmpty(categoryById)){
@@ -71,6 +76,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') ")
     public ResponseEntity<?> deleteCategoryById(@PathVariable("id") Integer id){
         boolean isDeleted = categoryService.deleteCategory(id);
         if(isDeleted){
