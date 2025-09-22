@@ -4,7 +4,6 @@ import com.project.enotes_api_service.dto.FavoriteNotesDto;
 import com.project.enotes_api_service.dto.NotesDto;
 import com.project.enotes_api_service.dto.NotesResponseDto;
 import com.project.enotes_api_service.entity.FileDetails;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
@@ -18,17 +17,17 @@ public interface NotesService {
 
     FileDetails getFileDetails(Integer id) throws Exception;
 
-    NotesResponseDto getAllNotesByUser(Integer userId,Integer pageNo,Integer pageSize) throws Exception;
+    NotesResponseDto getAllNotesByUser(Integer pageNo,Integer pageSize) throws Exception;
 
     void softDeleteNotes(Integer id) throws Exception;
 
     void restoreNotes(Integer id) throws Exception;
 
-    List<NotesDto> getUserRecycleBin(Integer userId);
+    List<NotesDto> getUserRecycleBin();
 
     void hardDeleteNotes(Integer id) throws Exception;
 
-    void emptyRecycleBin(Integer userId) throws Exception;
+    void emptyRecycleBin() throws Exception;
 
     void favoriteNotes(Integer notesId) throws Exception;
 

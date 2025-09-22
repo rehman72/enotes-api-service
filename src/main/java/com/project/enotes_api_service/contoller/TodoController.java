@@ -47,7 +47,7 @@ public class TodoController {
 
     @RequestMapping("/list")
     @PreAuthorize("hasAuthority('ROLE_USER')")
-    public ResponseEntity<?> getTodoByUser() throws Exception {
+    public ResponseEntity<?> getTodoByUser() {
         List<TodoDto> todoList = todoService.getTodoByUser();
         if (!ObjectUtils.isEmpty(todoList)) {
             return CommonUtil.createBuildResponse(todoList, HttpStatus.OK);

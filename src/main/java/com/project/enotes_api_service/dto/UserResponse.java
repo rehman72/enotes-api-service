@@ -1,7 +1,7 @@
 package com.project.enotes_api_service.dto;
 
-
 import lombok.*;
+
 import java.util.List;
 
 @AllArgsConstructor
@@ -9,19 +9,19 @@ import java.util.List;
 @Setter
 @Getter
 @Builder
-public class UserDto {
+public class UserResponse {
 
     private Integer id;
 
     private String firstName;
 
     private String lastName;
-    
+
     private String email;
 
     private String mobNo;
 
-    private String password;
+    private StatusDto accountStatus;
 
     private List<RoleDto> roles;
 
@@ -30,9 +30,22 @@ public class UserDto {
     @Setter
     @Getter
     @Builder
-    public static class RoleDto{
+    public static class StatusDto{
+
         private Integer id;
 
+        private Boolean isActive;
+
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Setter
+    @Getter
+    @Builder
+    public static class RoleDto{
+        private Integer id;
         private String name;
     }
+
 }

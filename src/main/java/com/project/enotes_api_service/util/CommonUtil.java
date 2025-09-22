@@ -1,7 +1,9 @@
 package com.project.enotes_api_service.util;
 
 import com.project.enotes_api_service.Handler.GenericResponse;
+import com.project.enotes_api_service.Security.CustomUserDetails;
 import com.project.enotes_api_service.entity.FileDetails;
+import com.project.enotes_api_service.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
@@ -9,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 public class CommonUtil {
 
@@ -69,4 +72,15 @@ public class CommonUtil {
         log.info("Replaced Endpoint: {}", replacedString);
         return replacedString;
  }
+    public static User getLoggedInUser(){
+        try {
+            CustomUserDetails customUserDetails=(CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return customUserDetails.getUser();
+        }catch (Exception e){
+          log.error("Error While Getting Logged In User {}",e.getMessage());
+        }
+        return null;
+    }
+
+
 }

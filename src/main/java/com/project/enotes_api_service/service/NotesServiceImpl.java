@@ -9,10 +9,11 @@ import com.project.enotes_api_service.dto.NotesResponseDto;
 import com.project.enotes_api_service.entity.FavouriteNotes;
 import com.project.enotes_api_service.entity.FileDetails;
 import com.project.enotes_api_service.entity.Notes;
+import com.project.enotes_api_service.entity.User;
 import com.project.enotes_api_service.repository.FavouriteNotesRepo;
 import com.project.enotes_api_service.repository.FileRepository;
 import com.project.enotes_api_service.repository.NotesRepository;
-import jakarta.persistence.criteria.CriteriaBuilder;
+import com.project.enotes_api_service.util.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
@@ -29,8 +30,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.lang.module.ResolutionException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -114,14 +116,14 @@ public  class NotesServiceImpl implements NotesService{
                 .toList();
     }
 
-    public FileDetails saveFileDetails(MultipartFile file) throws Exception {
+    public FileDetails saveFileDetails(MultipartFile file) throws IOException {
         if(!ObjectUtils.isEmpty(file) && !file.isEmpty()){
             Optional<FileDetails> byOriginalFileName = fileRepository.findByOriginalFileName(file.getOriginalFilename());
             if(byOriginalFileName.isPresent()){
                 FileDetails existingFile = byOriginalFileName.get();
                 boolean isUsedByActiveNote = notesRepository.existsByFileDetailsAndIsDeletedFalse(existingFile);
                 if (isUsedByActiveNote){
-                    throw new Exception("File Already in Used By Other Notes");
+                    throw new FileAlreadyExistsException("File Already in Used By Other Notes");
                 }else{
                     return existingFile;
                 }
@@ -181,9 +183,10 @@ public  class NotesServiceImpl implements NotesService{
     }
 
     @Override
-        public NotesResponseDto getAllNotesByUser(Integer userId,Integer pageNo,Integer pageSize)  throws Exception{
+        public NotesResponseDto getAllNotesByUser(Integer pageNo,Integer pageSize)  throws Exception{
+        User loggedInUser = CommonUtil.getLoggedInUser();
         Pageable pageRequest= PageRequest.of(pageNo,pageSize);
-        Page<Notes> notes = notesRepository.findByCreatedByAndIsDeletedFalse(userId,pageRequest);
+        Page<Notes> notes = notesRepository.findByCreatedByAndIsDeletedFalse(loggedInUser.getId(),pageRequest);
         if(notes.isEmpty()){
             throw new Exception("The User has no Notes");
         }
@@ -221,8 +224,9 @@ public  class NotesServiceImpl implements NotesService{
     }
 
     @Override
-    public List<NotesDto> getUserRecycleBin(Integer userId) {
-        List<Notes> notesList = notesRepository.findByCreatedByAndIsDeletedTrue(userId);
+    public List<NotesDto> getUserRecycleBin() {
+        User loggedInUser = CommonUtil.getLoggedInUser();
+        List<Notes> notesList = notesRepository.findByCreatedByAndIsDeletedTrue(loggedInUser.getId());
         return notesList.stream()
                 .map(notes -> modelMapper.map(notes, NotesDto.class))
                 .toList();
@@ -240,9 +244,9 @@ public  class NotesServiceImpl implements NotesService{
     }
 
     @Override
-    public void emptyRecycleBin(Integer userId)  throws Exception{
-        List<Notes> deletedNotes = notesRepository.findAllByCreatedByAndIsDeletedTrue((userId));
-
+    public void emptyRecycleBin()  throws Exception{
+        User loggedInUser = CommonUtil.getLoggedInUser();
+        List<Notes> deletedNotes = notesRepository.findAllByCreatedByAndIsDeletedTrue(loggedInUser.getId());
         if(!deletedNotes.isEmpty()){
             List<Integer> list = deletedNotes.stream()
                     .map(Notes::getId)
@@ -257,12 +261,12 @@ public  class NotesServiceImpl implements NotesService{
 
     @Override
     public void favoriteNotes(Integer notesId) throws Exception {
-        Integer userId=1;
+        User loggedInUser = CommonUtil.getLoggedInUser();
         Notes notes = notesRepository.findById(notesId)
                 .orElseThrow(() -> new ResourceNotFoundException("Notes Not Found with this id"));
         FavouriteNotes favouriteNotes = FavouriteNotes.builder()
                 .notes(notes)
-                .userId(userId)
+                .userId(loggedInUser.getId())
                 .build();
         favouriteNotesRepo.save(favouriteNotes);
     }
@@ -276,8 +280,8 @@ public  class NotesServiceImpl implements NotesService{
 
     @Override
     public List<FavoriteNotesDto> getUserFavoriteNotes(){
-        Integer userId=1;
-        List<FavouriteNotes> favouriteNotes = favouriteNotesRepo.findByUserId(userId);
+        User loggedInUser = CommonUtil.getLoggedInUser();
+        List<FavouriteNotes> favouriteNotes = favouriteNotesRepo.findByUserId(loggedInUser.getId());
          return favouriteNotes.stream()
                 .map(favourite->modelMapper.map(favourite,FavoriteNotesDto.class))
                 .toList();
