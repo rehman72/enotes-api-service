@@ -5,7 +5,7 @@ import com.project.enotes_api_service.Exception.AlreadyExistException;
 import com.project.enotes_api_service.Exception.ValidationException;
 import com.project.enotes_api_service.dto.CategoryDto;
 import com.project.enotes_api_service.dto.TodoDto;
-import com.project.enotes_api_service.dto.UserDto;
+import com.project.enotes_api_service.dto.UserRequest;
 import com.project.enotes_api_service.entity.Role;
 import com.project.enotes_api_service.repository.RoleRepository;
 import com.project.enotes_api_service.repository.UserRepository;
@@ -72,7 +72,7 @@ public class Validation {
         }
     }
 
-    public void userValidation(UserDto userDto){
+    public void userValidation(UserRequest userDto){
         if(!StringUtils.hasText(userDto.getFirstName())){
             throw new IllegalArgumentException("User First Name is Invalid1");
         }
@@ -101,7 +101,7 @@ public class Validation {
                     .map(Role::getId)
                     .toList();
             List<Integer> invalidRoleIds = userDto.getRoles().stream()
-                    .map(UserDto.RoleDto::getId)
+                    .map(UserRequest.RoleDto::getId)
                     .filter(ids->!list.contains(ids))
                     .toList();
             if(!CollectionUtils.isEmpty(invalidRoleIds)){

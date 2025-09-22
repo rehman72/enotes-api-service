@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.FileNotFoundException;
 
+import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.Arrays;
 
 @Slf4j
@@ -52,6 +54,13 @@ public class GlobalExceptionHandler {
         return errorDetails;
     }
 
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<?> handleExceptions(IOException e){
+        if(e instanceof FileAlreadyExistsException){
+            return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.CONFLICT);
+        }
+    return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     @ExceptionHandler(SuccessException.class)
     public ResponseEntity<?> handleSuccessException(SuccessException e){

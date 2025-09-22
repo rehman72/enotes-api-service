@@ -2,7 +2,7 @@ package com.project.enotes_api_service.contoller;
 
 import com.project.enotes_api_service.dto.LoginRequest;
 import com.project.enotes_api_service.dto.LoginResponse;
-import com.project.enotes_api_service.dto.UserDto;
+import com.project.enotes_api_service.dto.UserRequest;
 import com.project.enotes_api_service.service.UserService;
 import com.project.enotes_api_service.util.CommonUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.management.relation.RoleNotFoundException;
-
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
@@ -26,7 +24,7 @@ public class AuthController {
 
 
     @PostMapping("/")
-    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto, HttpServletRequest serverRequest) throws Exception {
+    public ResponseEntity<?> registerUser(@RequestBody UserRequest userDto, HttpServletRequest serverRequest) throws Exception {
         String url = CommonUtil.getUrl(serverRequest);
         Boolean registered = userService.register(userDto,url);
         if(registered){

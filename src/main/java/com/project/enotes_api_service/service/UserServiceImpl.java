@@ -2,10 +2,7 @@ package com.project.enotes_api_service.service;
 
 import com.project.enotes_api_service.Exception.AccountNotVerifiedException;
 import com.project.enotes_api_service.Security.CustomUserDetails;
-import com.project.enotes_api_service.dto.EmailRequest;
-import com.project.enotes_api_service.dto.LoginRequest;
-import com.project.enotes_api_service.dto.LoginResponse;
-import com.project.enotes_api_service.dto.UserDto;
+import com.project.enotes_api_service.dto.*;
 import com.project.enotes_api_service.entity.AccountStatus;
 import com.project.enotes_api_service.entity.Role;
 import com.project.enotes_api_service.entity.User;
@@ -58,7 +55,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public Boolean register(UserDto userDto, String url) throws Exception {
+    public Boolean register(UserRequest userDto, String url) throws Exception {
       validation.userValidation(userDto);
         User user = modelMapper.map(userDto, User.class);
         setRole(userDto,user);
@@ -90,7 +87,7 @@ public class UserServiceImpl implements UserService {
             LoginResponse loginResponse=LoginResponse
                     .builder()
                     .token(token)
-                    .user(modelMapper.map(user.getUser(),UserDto.class))
+                    .user(modelMapper.map(user.getUser(), UserResponse.class))
                      .build();
              return loginResponse;
         }
@@ -118,10 +115,10 @@ public class UserServiceImpl implements UserService {
         emailSendService.send(emailRequest);
     }
 
-    private void setRole(UserDto userDto, User user) {
+    private void setRole(UserRequest userDto, User user) {
         List<Integer> requestIds = userDto.getRoles()
                 .stream()
-                .map(UserDto.RoleDto::getId)
+                .map(UserRequest.RoleDto::getId)
                 .toList();
 
         List<Role> allRole  = roleRepository.findAllById(requestIds);
