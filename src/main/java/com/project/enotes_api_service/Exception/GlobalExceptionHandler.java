@@ -50,6 +50,7 @@ public class GlobalExceptionHandler {
             errorDetails=ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(401),e.getMessage());
             errorDetails.setProperty("access_denied_reason","Invalid Token!");
         }
+
         return errorDetails;
     }
 
@@ -92,6 +93,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AlreadyExistException.class)
     public ResponseEntity<?> handleAlreadyExistException(AlreadyExistException ex) {
         return CommonUtil.createErrorResponseMessage(ex.getMessage(),HttpStatus.CONFLICT);
+    }@ExceptionHandler(LinkExpiredException.class)
+    public ResponseEntity<?> handleAlreadyExistException(LinkExpiredException ex) {
+        return CommonUtil.createErrorResponseMessage(ex.getMessage(),HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ExtensionNotAllowedException.class)

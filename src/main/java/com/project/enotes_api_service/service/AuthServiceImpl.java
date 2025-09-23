@@ -70,7 +70,7 @@ public class AuthServiceImpl implements AuthService {
         if(ObjectUtils.isEmpty(save)) {
             return false;
         }
-        mailSend(save,url);
+        mailSendRegister(save,url);
         return true;
     }
 
@@ -94,7 +94,7 @@ public class AuthServiceImpl implements AuthService {
         return null;
     }
 
-    private void mailSend(User savedUser,String requestUrl) throws Exception {
+    public void mailSendRegister(User savedUser,String requestUrl) throws Exception {
         String mailSendBody="Hi,<b>"+"[[username]]"+"</b>" +
                 "<br> Your account register successfully<br>"+
                 "<br> Click the Below Link and verify & Active your Account <br>"+
