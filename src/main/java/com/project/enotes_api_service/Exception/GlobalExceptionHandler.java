@@ -12,7 +12,6 @@ import org.springframework.mail.MailSendException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
-
 import java.io.FileNotFoundException;
 
 import java.io.IOException;
@@ -105,17 +104,22 @@ public class GlobalExceptionHandler {
         return CommonUtil.createErrorResponseMessage(ex.getMessage(),HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(PasswordNotMatchedException.class)
+    public ResponseEntity<?> handlePasswordChangeException(PasswordNotMatchedException ex) {
+        return CommonUtil.createErrorResponseMessage(ex.getMessage(),HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(MailSendException.class)
-//    @ResponseBody
-//    @ResponseStatus
     public ResponseEntity<?> handleMailSendException(MailSendException e){
         Exception[] error=e.getMessageExceptions();
         String message = Arrays.stream(error)
                 .findFirst()
-                .get()
+                .orElseGet(()->new Exception("Unknown Mail Send Exception"))
                 .getMessage();
         log.info("MailSendException:: handleMailSendException :: {}",message);
         return CommonUtil.createErrorResponseMessage(message,HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+
 
 }

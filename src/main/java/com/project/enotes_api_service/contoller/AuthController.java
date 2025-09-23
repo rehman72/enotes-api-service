@@ -3,7 +3,7 @@ package com.project.enotes_api_service.contoller;
 import com.project.enotes_api_service.dto.LoginRequest;
 import com.project.enotes_api_service.dto.LoginResponse;
 import com.project.enotes_api_service.dto.UserRequest;
-import com.project.enotes_api_service.service.UserService;
+import com.project.enotes_api_service.service.AuthService;
 import com.project.enotes_api_service.util.CommonUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     @Autowired
-    private UserService userService;
+    private AuthService authService;
 
 
     @PostMapping("/")
     public ResponseEntity<?> registerUser(@RequestBody UserRequest userDto, HttpServletRequest serverRequest) throws Exception {
         String url = CommonUtil.getUrl(serverRequest);
-        Boolean registered = userService.register(userDto,url);
+        Boolean registered = authService.register(userDto,url);
         if(registered){
            return CommonUtil.createBuildResponseMessage("User Registered Success", HttpStatus.CREATED);
         }else{
@@ -36,10 +36,11 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest)  {
-       LoginResponse loginResponse=userService.login(loginRequest);
+       LoginResponse loginResponse= authService.login(loginRequest);
        if(ObjectUtils.isEmpty(loginResponse)){
            return CommonUtil.createErrorResponseMessage("Login Failed!", HttpStatus.INTERNAL_SERVER_ERROR);
        }
        return CommonUtil.createBuildResponse(loginResponse,HttpStatus.OK);
     }
+
 }
