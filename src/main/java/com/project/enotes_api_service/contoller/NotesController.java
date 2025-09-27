@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -88,7 +89,6 @@ public class NotesController {
     @GetMapping("/recycle-bin")
     @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<?> getUserRecycleBin() {
-        Integer userId=1;
         List<NotesDto> userRecycleBin = notesService.getUserRecycleBin();
         if(CollectionUtils.isEmpty(userRecycleBin)){
             return  CommonUtil.createBuildResponse("Notes not available in Recycle Bin",HttpStatus.OK);
@@ -142,6 +142,19 @@ public class NotesController {
             return CommonUtil.createErrorResponseMessage("Copy Failed Notes",HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return CommonUtil.createBuildResponseMessage("Copied Success",HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public ResponseEntity<?> searchNotes(@RequestParam(name = "key") String Keyword,
+                                         @RequestParam(name = "PageNo",defaultValue = "0") Integer PageNo,
+                                         @RequestParam(name = "PageSize",defaultValue = "1") Integer pageSize
+                                         ){
+        NotesResponseDto notesResponseDto = notesService.getAllNotesByUserSearch(PageNo, pageSize, Keyword);
+        if(!ObjectUtils.isEmpty(notesResponseDto)){
+           return CommonUtil.createBuildResponse(notesResponseDto,HttpStatus.OK);
+        }
+        return CommonUtil.createErrorResponseMessage("No Notes Found",HttpStatus.NOT_FOUND);
     }
 
 }

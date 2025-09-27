@@ -19,6 +19,8 @@ public interface NotesService {
 
     NotesResponseDto getAllNotesByUser(Integer pageNo,Integer pageSize) throws Exception;
 
+    NotesResponseDto getAllNotesByUserSearch(Integer pageNo,Integer pageSize,String keyword);
+
     void softDeleteNotes(Integer id) throws Exception;
 
     void restoreNotes(Integer id) throws Exception;
