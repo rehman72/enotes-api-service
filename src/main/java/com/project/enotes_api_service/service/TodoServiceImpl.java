@@ -60,9 +60,12 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
-    public List<TodoDto> getTodoByUser() {
+    public List<TodoDto> getTodoByUser() throws Exception {
         User loggedInUser = CommonUtil.getLoggedInUser();
         List<Todo> allTodoWithUser = todoRepository.findByCreatedBy(loggedInUser.getId());
+        if(allTodoWithUser.isEmpty()){
+            throw new ResourceNotFoundException("Empty Todo!");
+        }
         return allTodoWithUser.stream()
                 .map(todo -> modelMapper.map(todo, TodoDto.class))
                 .toList();
