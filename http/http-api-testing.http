@@ -1,0 +1,45 @@
+#Save Category
+POST  http://localhost:8080/api/v1/category/save-category
+Content-Type: application/json
+
+{
+  "name": "Simple Category",
+  "description": "simple Cat",
+  "isActive": true
+}
+
+####
+#Get All Category
+GET http://localhost:8080/api/v1/category/Category
+###
+
+#GetById
+
+GET http://localhost:8080/api/v1/category/10
+###
+
+#DeleteCategoryById
+
+DELETE http://localhost:8080/api/v1/category/10
+###
+
+GET http://localhost:8080/api/v1/category/active-Category
+###
+#Save Notes
+POST http://localhost:8080/api/v1/notes/
+Content-Type: application/json
+
+{
+  "title": "Breathing Excercise",
+  "description": "Breathing For OneDay",
+  "category" : {
+    "id": 1
+  }
+}
+
+###
+# Get All Save Notes
+
+GET http://localhost:8080/api/v1/notes/
+###
+
