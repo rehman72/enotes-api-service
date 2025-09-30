@@ -43,3 +43,30 @@ Content-Type: application/json
 GET http://localhost:8080/api/v1/notes/
 ###
 
+
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "abdulrahmanpatni@gmail.com",
+  "password": "hellorehman123"
+
+}
+###
+
+POST localhost:8080/api/v1/auth/
+Content-Type: application/json
+
+{
+  "firstName": "AbdulRahman",
+  "lastName": "Patni",
+  "email": "abdulrahmanpatni@gmail.com",
+  "password": "hellorehman123",
+  "mobNo": "8698307642",
+  "roles": [
+    {
+      "id": 1,
+      "name": "USER"
+    }
+  ]
+}
