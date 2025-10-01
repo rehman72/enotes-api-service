@@ -1,0 +1,111 @@
+spring:
+  application:
+    name: enotes-api-service
+  profiles:
+    active: test
+
+---
+#Dev Config:
+spring:
+    config:
+      activate:
+        on-profile: dev
+    datasource:
+      url: jdbc:postgresql://localhost:5432/enotes_db-Dev
+      username: postgres
+      password: hello
+    jpa:
+      show-sql: true
+      hibernate:
+        ddl-auto: none
+    servlet:
+      multipart:
+        max-file-size: 100MB
+        max-request-size: 100MB
+    mail:
+      username: abdulrahmanpatni@gmail.com
+      host: smtp.gmail.com
+      password: figj firm aqnr pibf
+      port: 587
+      properties:
+        mail:
+        smtp:
+            auth: true
+            starttls:
+              enable:true
+file:
+  upload:
+    path: /notes/
+---
+#test
+spring:
+    config:
+      activate:
+        on-profile: test
+    datasource:
+      url: jdbc:postgresql://localhost:5432/test_db
+      username: postgres
+      password: hello
+    jpa:
+      show-sql: true
+      hibernate:
+        ddl-auto: none
+    servlet:
+      multipart:
+        max-file-size: 100MB
+        max-request-size: 100MB
+    mail:
+      username: abdulrahmanpatni@gmail.com
+      host: smtp.gmail.com
+      password: figj firm aqnr pibf
+      port: 587
+      properties:
+        mail:
+          smtp:
+            auth: true
+          starttls:
+            enable:true
+file:
+  upload:
+    path: /notes/
+
+---
+#Prod
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:postgresql://localhost:5432/prod_db
+    username: postgres
+    password: hello
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  mail:
+    username: abdulrahmanpatni@gmail.com
+    host: smtp.gmail.com
+    password: figj firm aqnr pibf
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable:true
+logging:
+    level:
+      org:
+      springframework:
+        security: debug
+        web:
+          FilterChainProxy: debug
+
+file:
+  upload:
+    path: /notes/
