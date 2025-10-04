@@ -2,37 +2,47 @@ spring:
   application:
     name: enotes-api-service
   profiles:
-    active: test
-
+    active: dev
+logging:
+  level:
+    root: DEBUG
 ---
 #Dev Config:
 spring:
-    config:
+  config:
       activate:
         on-profile: dev
-    datasource:
+  datasource:
       url: jdbc:postgresql://localhost:5432/enotes_db-Dev
       username: postgres
       password: hello
-    jpa:
+  jpa:
       show-sql: true
       hibernate:
         ddl-auto: none
-    servlet:
-      multipart:
-        max-file-size: 100MB
-        max-request-size: 100MB
-    mail:
-      username: abdulrahmanpatni@gmail.com
-      host: smtp.gmail.com
-      password: figj firm aqnr pibf
-      port: 587
-      properties:
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  mail:
+    username: abdulrahmanpatni@gmail.com
+    host: smtp.gmail.com
+    password: qflj repk blrz qynj
+    port: 587
+    properties:
         mail:
-        smtp:
+          smtp:
             auth: true
             starttls:
-              enable:true
+              enable: true
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health,info
 file:
   upload:
     path: /notes/
@@ -57,7 +67,7 @@ spring:
     mail:
       username: abdulrahmanpatni@gmail.com
       host: smtp.gmail.com
-      password: figj firm aqnr pibf
+      password: qflj repk blrz qynj
       port: 587
       properties:
         mail:
@@ -90,7 +100,7 @@ spring:
   mail:
     username: abdulrahmanpatni@gmail.com
     host: smtp.gmail.com
-    password: figj firm aqnr pibf
+    password: qflj repk blrz qynj
     port: 587
     properties:
       mail:

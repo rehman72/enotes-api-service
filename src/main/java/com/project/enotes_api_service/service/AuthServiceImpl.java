@@ -76,10 +76,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse login(LoginRequest loginRequest){
+        log.info("AuthServiceImpl : login() :Started..");
         Authentication authenticate = authenticationManager.authenticate
                 (new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+        log.debug("AuthServiceImpl : login() :authenticate :{}", authenticate);
         CustomUserDetails user = (CustomUserDetails) authenticate.getPrincipal();
         if(!user.getUser().getAccountStatus().getIsActive()){
+            log.info("error: AuthServiceImpl : Inactive User");
             throw new AccountNotVerifiedException("Your account is not yet activated. Please check your email for the activation link.");
         }
         String token = jwtService.generateToken(user.getUser());

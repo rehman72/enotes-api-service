@@ -6,6 +6,7 @@ import com.project.enotes_api_service.dto.UserRequest;
 import com.project.enotes_api_service.service.AuthService;
 import com.project.enotes_api_service.util.CommonUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
@@ -23,14 +25,17 @@ public class AuthController {
     private AuthService authService;
 
 
-    @PostMapping("/")
+    @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserRequest userDto, HttpServletRequest serverRequest) throws Exception {
+        log.info("AuthController : registerUser() : Execution Started");
         String url = CommonUtil.getUrl(serverRequest);
         Boolean registered = authService.register(userDto,url);
-        if(registered){
-           return CommonUtil.createBuildResponseMessage("User Registered Success", HttpStatus.CREATED);
-        }else{
+        if(!registered){
+            log.info("error: Registration Failed!");
             return CommonUtil.createErrorResponseMessage("Registration Failed!", HttpStatus.INTERNAL_SERVER_ERROR);
+        }else{
+            log.info("AuthController : registerUser() : Execution End");
+            return CommonUtil.createBuildResponseMessage("User Registered Success", HttpStatus.CREATED);
         }
     }
 
