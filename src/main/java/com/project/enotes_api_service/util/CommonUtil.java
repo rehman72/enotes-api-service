@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+
 public class CommonUtil {
 
     private static final Logger log = LogManager.getLogger(CommonUtil.class);

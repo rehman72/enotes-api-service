@@ -5,6 +5,8 @@ import com.project.enotes_api_service.service.HomeServiceImpl;
 import com.project.enotes_api_service.service.UserService;
 import com.project.enotes_api_service.util.CommonUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/Home")
 public class HomeController {
+
+    Logger log=LoggerFactory.getLogger(HomeController.class);
 
     @Autowired
     private HomeServiceImpl homeService;
@@ -25,10 +29,11 @@ public class HomeController {
 
     @GetMapping("/verify")
     public ResponseEntity<?> verifyAccount(@RequestParam Integer id ,@RequestParam String verificationCode) throws Exception {
+        log.info("HomeController : verifyAccount() : Execution Started");
         Boolean isVerified = homeService.verifyAccount(id, verificationCode);
-        if(isVerified){
+        if(isVerified)
             return CommonUtil.createBuildResponseMessage("Account Verified Success", HttpStatus.OK);
-        }
+        log.info("HomeController : verifyAccount : Execution End");
         return CommonUtil.createErrorResponseMessage("Account Verification Failed", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
