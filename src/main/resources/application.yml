@@ -3,9 +3,6 @@ spring:
     name: enotes-api-service
   profiles:
     active: dev
-logging:
-  level:
-    root: DEBUG
 ---
 #Dev Config:
 spring:
