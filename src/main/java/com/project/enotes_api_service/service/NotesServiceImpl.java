@@ -172,7 +172,6 @@ public  class NotesServiceImpl implements NotesService{
 
     @Override
     public byte[] downloadFile(FileDetails fileDetail) throws Exception {
-        InputStream io=new FileInputStream(fileDetail.getPath());
        return StreamUtils.copyToByteArray(io);
     }
 

@@ -3,6 +3,11 @@ spring:
     name: enotes-api-service
   profiles:
     active: dev
+springdoc:
+  swagger-ui:
+    operationsSorter: method
+    tags-sorter: alpha
+    path: /ENotes-doc
 ---
 #Dev Config:
 spring:
@@ -112,6 +117,7 @@ logging:
         security: debug
         web:
           FilterChainProxy: debug
+
 
 file:
   upload:

@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean changePassword(PasswordChangeRequest changeRequest) {
         User loggedInUser = CommonUtil.getLoggedInUser();
-        if(!passwordEncoder.matches(changeRequest.getOldPassword(),loggedInUser.getPassword())){
+        if(!passwordEncoder.matches(changeRequest.getOldPassword(), loggedInUser.getPassword())){
             throw new PasswordNotMatchedException("Old Password Incorrect");
         }
        loggedInUser.setPassword(passwordEncoder.encode(changeRequest.getNewPassword()));
@@ -83,7 +83,6 @@ public class UserServiceImpl implements UserService {
         user.setPassword(encode);
         user.getAccountStatus().setPasswordResetToken(null);
         userRepository.save(user);
-
     }
 
     private void sendMailReset(User user,String requestUrl) throws Exception {
@@ -95,7 +94,7 @@ public class UserServiceImpl implements UserService {
 
         mailSendBody=mailSendBody.replace("[[username]]",user.getFirstName());
         mailSendBody=mailSendBody.replace("[[url]]", requestUrl+"/api/v1/Home/verify-pswd-link"
-                +"?uid="+user.getId()+"&&passResetToken="+user.getAccountStatus().getPasswordResetToken());
+                +"?uid="+user.getId()+"&passResetToken="+user.getAccountStatus().getPasswordResetToken());
         EmailRequest emailRequest=EmailRequest
                 .builder()
                 .to(user.getEmail())
