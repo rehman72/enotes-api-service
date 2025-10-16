@@ -1,7 +1,11 @@
 package com.project.enotes_api_service.Endpoint;
 
 
+import com.project.enotes_api_service.dto.NotesRequest;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,10 +21,12 @@ import static com.project.enotes_api_service.util.Constants.defaultPageSize;
 public interface NotesEndPoint {
 
     @Operation(summary = "Save Notes",tags = {"Notes Apis's","User"})
-    @PostMapping("/")
+    @PostMapping(value = "/",consumes = "Multipart/form-data")
     @PreAuthorize(ROLE_USER)
      ResponseEntity<?> saveNotes(
-            @RequestParam String notes
+            @RequestParam @Parameter(description = "Json String Notes",required = true
+            ,content = @Content(schema = @Schema(implementation = NotesRequest.class))
+            ) String notes
             ,@RequestParam(required = false) MultipartFile file
     ) throws Exception;
 

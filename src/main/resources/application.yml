@@ -8,6 +8,12 @@ springdoc:
     operationsSorter: method
     tags-sorter: alpha
     path: /ENotes-doc
+logging:
+    level:
+      org.springdoc:  DEBUG
+      org.springdoc.api:  DEBUG
+      org.springdoc.webmvc: DEBUG
+      io.swagger.v3=DEBUG:  DEBUG
 ---
 #Dev Config:
 spring:
@@ -37,6 +43,8 @@ spring:
             auth: true
             starttls:
               enable: true
+server:
+    port: 8080
 management:
   endpoint:
     health:
@@ -77,6 +85,9 @@ spring:
             auth: true
           starttls:
             enable:true
+server:
+  port: 8081
+
 file:
   upload:
     path: /notes/
@@ -118,7 +129,8 @@ logging:
         web:
           FilterChainProxy: debug
 
-
+server:
+  port: 8082
 file:
   upload:
     path: /notes/
