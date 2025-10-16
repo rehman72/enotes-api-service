@@ -69,9 +69,7 @@ public class CommonUtil {
     public static String getUrl(HttpServletRequest serverRequest) {
         String  fullUrl = serverRequest.getRequestURL().toString();
         String apiEndpoint = serverRequest.getServletPath();
-        String replacedString = fullUrl.replace(apiEndpoint, "");
-        log.info("Replaced Endpoint: {}", replacedString);
-        return replacedString;
+        return  fullUrl.replace(apiEndpoint, "");
  }
     public static User getLoggedInUser(){
         try {

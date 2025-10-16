@@ -31,7 +31,7 @@ public class Validation {
     public void CategoryValidation(CategoryDto categoryDto){
         Map<String,Object> error=new LinkedHashMap<>();
         if(ObjectUtils.isEmpty(categoryDto)){
-            throw new IllegalArgumentException("Pass Category object as {JSON} Body");
+            throw new ValidationException("Pass Category object as {JSON} Body");
         }else{
             validateName(categoryDto,error);
             validateDescription(categoryDto,error);
@@ -68,20 +68,20 @@ public class Validation {
             }
         }
         if(!isValid){
-            throw new IllegalArgumentException("Invalid Status");
+            throw new ValidationException("Invalid Status");
         }
     }
 
     public void userValidation(UserRequest userDto){
         if(!StringUtils.hasText(userDto.getFirstName())){
-            throw new IllegalArgumentException("User First Name is Invalid1");
+            throw new ValidationException("User First Name is Invalid1");
         }
         if(!StringUtils.hasText(userDto.getLastName())){
-            throw new IllegalArgumentException("last Name is Invalid!");
+            throw new ValidationException("last Name is Invalid!");
         }
 
         if(!StringUtils.hasText(userDto.getEmail()) || !userDto.getEmail().matches(Constants.emailRegex)){
-            throw new IllegalArgumentException("Email is Invalid!");
+            throw new ValidationException("Email is Invalid!");
         }else{
             boolean exists = userRepository.existsByEmail((userDto.getEmail()));
             if(exists){
@@ -90,11 +90,11 @@ public class Validation {
         }
 
         if(!StringUtils.hasText(userDto.getMobNo()) || !userDto.getMobNo().matches(Constants.mobileRegex)){
-            throw new IllegalArgumentException("mob is Invalid");
+            throw new ValidationException("mob is Invalid");
         }
 
         if(CollectionUtils.isEmpty(userDto.getRoles())){
-            throw  new IllegalArgumentException("Role Cannot be Empty!");
+            throw  new ValidationException("Role Cannot be Empty!");
         }else{
             List<Integer> list = roleRepository.findAll()
                     .stream()
@@ -105,7 +105,7 @@ public class Validation {
                     .filter(ids->!list.contains(ids))
                     .toList();
             if(!CollectionUtils.isEmpty(invalidRoleIds)){
-                throw new IllegalArgumentException("Invalid Role Id"+invalidRoleIds);
+                throw new ValidationException("Invalid Role Id"+invalidRoleIds);
             }
 
         }

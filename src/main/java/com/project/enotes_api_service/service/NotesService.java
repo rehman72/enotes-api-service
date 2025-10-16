@@ -13,7 +13,7 @@ public interface NotesService {
 
     List<NotesDto> getAllNotes();
 
-    byte[] downloadFile(FileDetails id) throws Exception;
+    byte[] downloadFile(FileDetails fileDetails) throws Exception;
 
     FileDetails getFileDetails(Integer id) throws Exception;
 

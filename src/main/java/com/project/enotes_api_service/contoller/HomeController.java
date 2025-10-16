@@ -35,7 +35,7 @@ public class HomeController implements HomeEndPoint {
         return CommonUtil.createErrorResponseMessage("Account Verification Failed", HttpStatus.INTERNAL_SERVER_ERROR);
     }
     @Override
-    public ResponseEntity<?> sendEmailForForPasswordReset(String email, HttpServletRequest httpServletRequest) throws Exception{
+    public ResponseEntity<?> sendEmailForPasswordReset(String email, HttpServletRequest httpServletRequest) throws Exception{
         String url = CommonUtil.getUrl(httpServletRequest);
         Boolean isSend=userService.sendEmailPasswordReset(email,url);
         if(!isSend){

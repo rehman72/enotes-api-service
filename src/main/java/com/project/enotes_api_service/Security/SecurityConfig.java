@@ -58,21 +58,31 @@ public class SecurityConfig {
        return authenticationConfiguration.getAuthenticationManager();
     }
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity
-    ) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth->auth.requestMatchers("/api/v1/auth/**","/api/v1/Home/**","/favicon.ico").permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/api/v1/auth/**",
+                                "/api/v1/Home/**",
+                                "/favicon.ico",
+                                // Swagger/OpenAPI endpoints
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/ENotes-doc/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())
-                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .addFilterBefore(jwtFilterBean(), UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(exception->{
-                        exception.authenticationEntryPoint(customEntryPoint);
-                        exception.accessDeniedHandler(accessDeniedHandler);
-                }
-                );
+                .exceptionHandling(exception -> {
+                    exception.authenticationEntryPoint(customEntryPoint);
+                    exception.accessDeniedHandler(accessDeniedHandler);
+                });
 
         return httpSecurity.build();
     }
