@@ -1,7 +1,7 @@
 <configuration>
 
     <!-- show config errors on console while troubleshooting -->
-    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener" />
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
 
     <!-- Console appender (must include class) -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
