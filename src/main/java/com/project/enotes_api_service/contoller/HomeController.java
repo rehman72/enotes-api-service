@@ -8,7 +8,6 @@ import com.project.enotes_api_service.util.CommonUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +18,16 @@ public class HomeController implements HomeEndPoint {
 
     Logger log=LoggerFactory.getLogger(HomeController.class);
 
-    @Autowired
-    private HomeServiceImpl homeService;
 
-    @Autowired
-    private UserService userService;
+    private final HomeServiceImpl homeService;
+
+
+    private final UserService userService;
+
+    public HomeController(HomeServiceImpl homeService, UserService userService) {
+        this.homeService = homeService;
+        this.userService = userService;
+    }
 
     @Override
     public ResponseEntity<?> verifyAccount(Integer id ,String verificationCode) throws Exception {

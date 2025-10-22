@@ -1,5 +1,6 @@
 package com.project.enotes_api_service.Endpoint;
 
+import com.project.enotes_api_service.Exception.RegisterationException;
 import com.project.enotes_api_service.dto.LoginRequest;
 import com.project.enotes_api_service.dto.UserRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,7 +25,7 @@ public interface AuthEndPoint {
     }
     )
     @PostMapping("/register")
-    ResponseEntity<?> registerUser(@RequestBody UserRequest userDto, HttpServletRequest serverRequest) throws Exception;
+    ResponseEntity<?> registerUser(@RequestBody UserRequest userDto, HttpServletRequest serverRequest) throws RegisterationException;
 
     @Operation(summary = "User Login",tags = {"User Authentication","Auth"})
     @PostMapping("/login")

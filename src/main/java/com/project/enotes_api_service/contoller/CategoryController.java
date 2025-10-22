@@ -7,7 +7,6 @@ import com.project.enotes_api_service.service.CategoryServiceImpl;
 import com.project.enotes_api_service.util.CommonUtil;
 import com.project.enotes_api_service.util.Validation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
@@ -19,11 +18,14 @@ import java.util.List;
 @RestController
 public class CategoryController implements CategoryEndPoint {
 
-    @Autowired
-    private  CategoryServiceImpl categoryService;
+    private final CategoryServiceImpl categoryService;
 
-    @Autowired
-    private Validation validation;
+    private final Validation validation;
+
+    public CategoryController(CategoryServiceImpl categoryService, Validation validation) {
+        this.categoryService = categoryService;
+        this.validation = validation;
+    }
 
     public ResponseEntity<?> saveCategory(CategoryDto category){
         Boolean isSaved = categoryService.saveCategory(category);

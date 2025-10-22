@@ -1,6 +1,9 @@
 package com.project.enotes_api_service.service;
 
 import com.project.enotes_api_service.Exception.AccountNotVerifiedException;
+import com.project.enotes_api_service.Exception.AlreadyExistException;
+import com.project.enotes_api_service.Exception.RegisterationException;
+import com.project.enotes_api_service.Exception.ValidationException;
 import com.project.enotes_api_service.Security.CustomUserDetails;
 import com.project.enotes_api_service.dto.*;
 import com.project.enotes_api_service.entity.AccountStatus;
@@ -10,9 +13,9 @@ import com.project.enotes_api_service.jwt.JwtService;
 import com.project.enotes_api_service.repository.RoleRepository;
 import com.project.enotes_api_service.repository.UserRepository;
 import com.project.enotes_api_service.util.Validation;
+import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -28,35 +31,39 @@ import java.util.UUID;
 @Service
 @Slf4j
 public class AuthServiceImpl implements AuthService {
+    
+    private final UserRepository userRepository;
+    
+    private  final Validation validation;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
-    @Autowired
-    private Validation validation;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    private RoleRepository roleRepository;
+    private final EmailSendService emailSendService;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private  final AuthenticationManager authenticationManager;
 
-    @Autowired
-    private EmailSendService emailSendService;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtService jwtService;
+    public AuthServiceImpl(UserRepository userRepository, Validation validation, RoleRepository roleRepository, ModelMapper modelMapper, EmailSendService emailSendService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtService jwtService) {
+        this.userRepository = userRepository;
+        this.validation = validation;
+        this.roleRepository = roleRepository;
+        this.modelMapper = modelMapper;
+        this.emailSendService = emailSendService;
+        this.authenticationManager = authenticationManager;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+    }
 
     @Override
     @Transactional
-    public Boolean register(UserRequest userDto, String url) throws Exception {
-      validation.userValidation(userDto);
+    public Boolean register(UserRequest userDto, String url) throws RegisterationException {
+        try {
+        validation.userValidation(userDto);
         User user = modelMapper.map(userDto, User.class);
         setRole(userDto,user);
         AccountStatus accountStatus= AccountStatus
@@ -70,7 +77,16 @@ public class AuthServiceImpl implements AuthService {
         if(ObjectUtils.isEmpty(save)) {
             return false;
         }
-        mailSendRegister(save,url);
+            mailSendRegister(save,url);
+        }catch (ValidationException e) {
+            throw new RegisterationException(e.getMessage(),e);
+        }catch (MessagingException error) {
+            throw new RegisterationException("Something Went Wrong When Sending Email: ",error);
+        } catch (AlreadyExistException already) {
+            throw new RegisterationException(already.getMessage());
+        } catch (Exception e){
+            throw new RegisterationException("UnExpected Error: ",e.getCause());
+        }
         return true;
     }
 
@@ -97,7 +113,7 @@ public class AuthServiceImpl implements AuthService {
         return null;
     }
 
-    public void mailSendRegister(User savedUser,String requestUrl) throws Exception {
+    public void mailSendRegister(User savedUser,String requestUrl) throws MessagingException {
         String mailSendBody="Hi,<b>"+"[[username]]"+"</b>" +
                 "<br> Your account register successfully<br>"+
                 "<br> Click the Below Link and verify & Active your Account <br>"+

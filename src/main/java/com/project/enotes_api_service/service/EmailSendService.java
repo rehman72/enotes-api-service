@@ -1,8 +1,8 @@
 package com.project.enotes_api_service.service;
 
 import com.project.enotes_api_service.dto.EmailRequest;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -11,13 +11,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class EmailSendService  {
 
-    @Autowired
-    private JavaMailSender javaMailSender;
+    private final JavaMailSender javaMailSender;
 
     @Value("${spring.mail.username}")
     private String mailForm;
 
-    public Boolean send(EmailRequest emailRequest) throws Exception{
+    public EmailSendService(JavaMailSender javaMailSender) {
+        this.javaMailSender = javaMailSender;
+    }
+
+    public Boolean send(EmailRequest emailRequest) throws MessagingException {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
         mimeMessageHelper.setTo(emailRequest.getTo());

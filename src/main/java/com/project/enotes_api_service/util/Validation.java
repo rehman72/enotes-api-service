@@ -9,7 +9,6 @@ import com.project.enotes_api_service.dto.UserRequest;
 import com.project.enotes_api_service.entity.Role;
 import com.project.enotes_api_service.repository.RoleRepository;
 import com.project.enotes_api_service.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -22,11 +21,16 @@ import java.util.Map;
 @Component
 public class Validation {
 
-    @Autowired
-    private RoleRepository roleRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final RoleRepository roleRepository;
+
+
+    private final UserRepository userRepository;
+
+    public Validation(RoleRepository roleRepository, UserRepository userRepository) {
+        this.roleRepository = roleRepository;
+        this.userRepository = userRepository;
+    }
 
     public void CategoryValidation(CategoryDto categoryDto){
         Map<String,Object> error=new LinkedHashMap<>();
@@ -72,7 +76,7 @@ public class Validation {
         }
     }
 
-    public void userValidation(UserRequest userDto){
+    public void userValidation(UserRequest userDto) throws ValidationException{
         if(!StringUtils.hasText(userDto.getFirstName())){
             throw new ValidationException("User First Name is Invalid1");
         }
