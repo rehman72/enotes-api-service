@@ -1,14 +1,10 @@
 package com.project.enotes_api_service.Exception;
 
 import com.project.enotes_api_service.util.CommonUtil;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.security.SecurityException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailSendException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
@@ -16,43 +12,70 @@ import java.io.FileNotFoundException;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
-import java.util.Arrays;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    public ProblemDetail handleException(Exception e){
-        log.error("GlobalExceptionHandler:: handleException ::{}",e.getMessage());
-        ProblemDetail errorDetails=null;
-        if(e instanceof AuthenticationException){
-             errorDetails=ProblemDetail.
-                    forStatusAndDetail(HttpStatus.valueOf(401),e.getMessage());
-            errorDetails.setProperty("access_denied_reason","Authentication Failure");
-            return errorDetails;
-        }
-        if(e instanceof AccessDeniedException){
-             errorDetails=ProblemDetail
-                    .forStatusAndDetail(HttpStatus.valueOf(403),e.getMessage());
-            errorDetails.setProperty("access_denied_reason","Not_Authorized");
-        }
-
-        if(e instanceof SecurityException){
-            errorDetails=ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(403),e.getMessage());
-            errorDetails.setProperty("access_denied_reason","Invalid Signature");
-        }
-        if(e instanceof ExpiredJwtException){
-            errorDetails=ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(403),e.getMessage());
-            errorDetails.setProperty("access_denied_reason","Token Expired!");
-        }
-        if(e instanceof JwtException){
-            errorDetails=ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(401),e.getMessage());
-            errorDetails.setProperty("access_denied_reason","Invalid Token!");
-        }
-
-        return errorDetails;
+    public ResponseEntity<?> handleException(Exception e) {
+        log.error("GlobalExceptionHandler:: handleException ::{}", e.getMessage());
+             log.error("Unexpected error occurred: ", e);
+        return CommonUtil.createErrorResponseMessage(
+                "An unexpected error occurred. Please try again later.",
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
+        @ExceptionHandler({AuthenticationException.class})
+        public ResponseEntity<?> handleAuthenticationException(AuthenticationException ex) {
+            log.warn("Authentication failure: ",ex);
+            return CommonUtil.createErrorResponseMessage(
+                    "Authentication failed. Invalid credentials.",
+                    HttpStatus.UNAUTHORIZED
+            );
+        }
+
+        @ExceptionHandler({JwtException.class})
+        public ResponseEntity<?> handleJwtException(JwtException ex) {
+            log.warn("Authentication failure: ",ex);
+            return CommonUtil.createErrorResponseMessage(
+                    "Authentication failed. Invalid credentials.",
+                    HttpStatus.UNAUTHORIZED
+            );
+        }
+
+
+        @ExceptionHandler({AccessDeniedException.class})
+        public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException ex) {
+            log.warn("Access denied: ", ex);
+            return CommonUtil.createErrorResponseMessage(
+                    "You are not authorized to perform this action.",
+                    HttpStatus.FORBIDDEN
+            );
+        }
+
+
+//        if(e instanceof AccessDeniedException){
+//             errorDetails=ProblemDetail
+//                    .forStatusAndDetail(HttpStatus.valueOf(403),e.getMessage());
+//            errorDetails.setProperty("access_denied_reason","Not_Authorized");
+//        }
+//
+//        if(e instanceof SecurityException){
+//            errorDetails=ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(403),e.getMessage());
+//            errorDetails.setProperty("access_denied_reason","Invalid Signature");
+//        }
+//        if(e instanceof ExpiredJwtException){
+//            errorDetails=ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(403),e.getMessage());
+//            errorDetails.setProperty("access_denied_reason","Token Expired!");
+//        }
+//        if(e instanceof JwtException){
+//            errorDetails=ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(401),e.getMessage());
+//            errorDetails.setProperty("access_denied_reason","Invalid Token!");
+//        }
+//
+//        return errorDetails;
+//    }
 
     @ExceptionHandler(IOException.class)
     public ResponseEntity<?> handleIOExceptions(IOException e){
@@ -126,18 +149,18 @@ public class GlobalExceptionHandler {
         return CommonUtil.createErrorResponseMessage(ex.getMessage(),HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(MailSendException.class)
-    public ResponseEntity<?> handleMailSendException(MailSendException e){
-        log.error("GlobalExceptionHandler:: handleMailSendException :: {}",e.getMessage());
-        Exception[] error=e.getMessageExceptions();
-        String message = Arrays.stream(error)
-                .findFirst()
-                .orElseGet(()->new Exception("Unknown Mail Send Exception"))
-                .getMessage();
-        log.info("MailSendException:: handleMailSendException :: {}",message);
-        return CommonUtil.createErrorResponseMessage(message,HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    @ExceptionHandler(RegisterationException.class)
+    public ResponseEntity<?> handleRegistrationException(RegisterationException e){
+        Throwable cause = e.getCause();
+        HttpStatus httpStatus=HttpStatus.INTERNAL_SERVER_ERROR;
 
+        if(cause instanceof ValidationException) httpStatus=HttpStatus.BAD_REQUEST;
+
+        log.error("Registration Failed!",e);
+
+        return CommonUtil.createErrorResponseMessage
+                ("Registration failed! Please Check Your Input!",httpStatus);
+    }
 
 
 }
