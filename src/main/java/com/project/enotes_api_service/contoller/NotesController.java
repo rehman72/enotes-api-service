@@ -7,7 +7,6 @@ import com.project.enotes_api_service.dto.NotesResponseDto;
 import com.project.enotes_api_service.entity.FileDetails;
 import com.project.enotes_api_service.service.NotesServiceImpl;
 import com.project.enotes_api_service.util.CommonUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -19,8 +18,11 @@ import java.util.List;
 @RestController
 public class NotesController implements NotesEndPoint {
 
-    @Autowired
-    private NotesServiceImpl notesService;
+    private final NotesServiceImpl notesService;
+
+    public NotesController(NotesServiceImpl notesService) {
+        this.notesService = notesService;
+    }
 
     public ResponseEntity<?> saveNotes(String notes,MultipartFile file) throws Exception{
         Boolean isSaved = notesService.savedNotes(notes,file);
@@ -65,7 +67,7 @@ public class NotesController implements NotesEndPoint {
     }
 
     @GetMapping("/restore/{id}")
-    public ResponseEntity<?> restoreNotes(Integer id) throws Exception{
+    public ResponseEntity<?> restoreNotes(@PathVariable Integer id) throws Exception{
         notesService.restoreNotes(id);
         return CommonUtil.createBuildResponseMessage("Restore  Success",HttpStatus.OK);
 

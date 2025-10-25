@@ -4,7 +4,6 @@ import com.project.enotes_api_service.Endpoint.TodoEndPoint;
 import com.project.enotes_api_service.dto.TodoDto;
 import com.project.enotes_api_service.service.TodoService;
 import com.project.enotes_api_service.util.CommonUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
@@ -15,8 +14,11 @@ import java.util.List;
 @RestController
 public class TodoController implements TodoEndPoint {
 
-    @Autowired
-    private TodoService todoService;
+    private final TodoService todoService;
+
+    public TodoController(TodoService todoService) {
+        this.todoService = todoService;
+    }
 
     public ResponseEntity<?> saveTodo(TodoDto todoDto) {
         Boolean isSaved = todoService.saveTodo(todoDto);

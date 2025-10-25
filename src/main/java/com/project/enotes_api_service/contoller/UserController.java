@@ -8,7 +8,6 @@ import com.project.enotes_api_service.service.UserService;
 import com.project.enotes_api_service.util.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,11 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserController implements UserEndPoint {
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public UserController(ModelMapper modelMapper, UserService userService) {
+        this.modelMapper = modelMapper;
+        this.userService = userService;
+    }
 
     public ResponseEntity<?> getProfile(){
         User loggedInUser = CommonUtil.getLoggedInUser();

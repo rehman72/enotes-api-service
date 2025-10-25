@@ -12,8 +12,11 @@ import java.util.List;
 @Component
 public class NotesScheduler {
 
-    @Autowired
-    private NotesRepository notesRepository;
+    private final NotesRepository notesRepository;
+
+    public NotesScheduler(NotesRepository notesRepository) {
+        this.notesRepository = notesRepository;
+    }
 
     @Scheduled(cron = "0 0 0 * * *")
     public  void deleteNotesScheduler(){

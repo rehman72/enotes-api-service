@@ -1,7 +1,7 @@
 package com.project.enotes_api_service.Security;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,7 +11,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,24 +22,31 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
+@Slf4j
 public class SecurityConfig {
-    @Autowired
-    @Qualifier("handlerExceptionResolver")
-    private HandlerExceptionResolver handlerExceptionResolver;
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
-    @Bean
-    public JwtFilter jwtFilterBean(){
-        return new JwtFilter(handlerExceptionResolver);
+    private final UserDetailsService userDetailsService;
+
+    private final CustomAuthentication customAuthentication;
+
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+
+    private final JwtFilter jwtFilter;
+
+    @PostConstruct
+    public void logHandlerResolverType() {
+       log.info("Injected HandlerExceptionResolver: {}" ,handlerExceptionResolver.getClass().getName());
+    }
+    public SecurityConfig(HandlerExceptionResolver handlerExceptionResolver, UserDetailsService userDetailsService, CustomAccessDeniedHandler customAccessDeniedHandler, CustomAuthentication customAuthentication,JwtFilter jwtFilter) {
+        this.handlerExceptionResolver = handlerExceptionResolver;
+        this.userDetailsService = userDetailsService;
+        this.customAuthentication = customAuthentication;
+        this.jwtFilter = jwtFilter;
+        this.accessDeniedHandler = customAccessDeniedHandler;
     }
 
-    @Autowired
-    private CustomEntryPoint customEntryPoint;
-
-    @Autowired
-    private AccessDeniedHandler accessDeniedHandler;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder(){
@@ -60,9 +67,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(CsrfConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/actuator/**",
                                 "/api/v1/auth/**",
                                 "/api/v1/Home/**",
                                 "/favicon.ico",
@@ -78,9 +86,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .addFilterBefore(jwtFilterBean(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtFilter,UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception -> {
-                    exception.authenticationEntryPoint(customEntryPoint);
+                    exception.authenticationEntryPoint(customAuthentication);
                     exception.accessDeniedHandler(accessDeniedHandler);
                 });
 
