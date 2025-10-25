@@ -8,12 +8,7 @@ springdoc:
     operationsSorter: method
     tags-sorter: alpha
     path: /ENotes-doc
-logging:
-    level:
-      org.springdoc:  DEBUG
-      org.springdoc.api:  DEBUG
-      org.springdoc.webmvc: DEBUG
-      io.swagger.v3=DEBUG:  DEBUG
+
 ---
 #Dev Config:
 spring:
@@ -25,9 +20,9 @@ spring:
       username: postgres
       password: hello
   jpa:
-      show-sql: true
       hibernate:
         ddl-auto: none
+      show-sql: true
   servlet:
     multipart:
       max-file-size: 100MB
@@ -46,13 +41,10 @@ spring:
 server:
     port: 8080
 management:
-  endpoint:
-    health:
-      show-details: always
   endpoints:
     web:
       exposure:
-        include: health,info
+        include:  '*'
 file:
   upload:
     path: /notes/

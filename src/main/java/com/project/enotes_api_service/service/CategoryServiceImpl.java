@@ -8,24 +8,33 @@ import com.project.enotes_api_service.entity.Category;
 import com.project.enotes_api_service.repository.CategoryRepository;
 import com.project.enotes_api_service.util.Validation;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService{
 
-    @Autowired
-    private Validation validation;
+    private final Validation validation;
 
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
+
+    private final CacheManagerService cacheManagerService;
+
+    public CategoryServiceImpl(Validation validation, CategoryRepository categoryRepository, ModelMapper modelMapper,CacheManagerService cacheManagerService) {
+        this.validation = validation;
+        this.categoryRepository = categoryRepository;
+        this.modelMapper = modelMapper;
+        this.cacheManagerService = cacheManagerService;
+    }
 
     @Transactional
     @Override
@@ -59,9 +68,10 @@ public class CategoryServiceImpl implements CategoryService{
 
 
     @Override
+    @Cacheable(value = "allCategory",unless = "#result == null or #result.isEmpty()")
     public List<CategoryDto> getAllCategory() {
         List<Category> allCategories = categoryRepository
-                .findAllAndIsDeletedFalse();
+                .findByIsDeletedFalse();
          return  allCategories.
                 stream()
                 .map(category -> modelMapper.map(category, CategoryDto.class))
@@ -69,6 +79,7 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
+    @Cacheable(value = "activeCategory",unless = "#result==null or #result.isEmpty()")
     public List<CategoryResponseDto> getActiveCategory() {
         List<Category> categoriesActive = categoryRepository.findByIsActiveTrueAndIsDeletedFalse();
          return categoriesActive.stream()
@@ -77,6 +88,7 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
+    @Cacheable(value = "getCategoryById",key = "#id")
     public CategoryDto  getCategoryById(Integer id) throws Exception {
         Category category=null;
             category = categoryRepository.findByIdAndIsDeletedFalse(id)
@@ -88,14 +100,13 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
-    public boolean deleteCategory(Integer id) {
-        Optional<Category> byId = categoryRepository.findById(id);
-        if(byId.isPresent()){
-            Category category = byId.get();
-            category.setIsDeleted(true);
+    @CacheEvict(value = "getCategoryById",key = "#id")
+    public boolean deleteCategory(Integer id) throws ResourceNotFoundException {
+        Category category = categoryRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(()->new ResourceNotFoundException("Category Not Found!"));
+        category.setIsDeleted(true);
             categoryRepository.save(category);
+            cacheManagerService.removeCacheByName(Arrays.asList("allCategory","activeCategory"));
             return true;
-        }
-        return false;
     }
 }

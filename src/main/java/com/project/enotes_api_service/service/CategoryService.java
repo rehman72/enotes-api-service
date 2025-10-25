@@ -1,5 +1,6 @@
 package com.project.enotes_api_service.service;
 
+import com.project.enotes_api_service.Exception.ResourceNotFoundException;
 import com.project.enotes_api_service.dto.CategoryDto;
 import com.project.enotes_api_service.dto.CategoryResponseDto;
 import java.util.List;
@@ -14,5 +15,5 @@ public interface CategoryService {
 
     CategoryDto getCategoryById(Integer id) throws Exception;
 
-    boolean deleteCategory(Integer id);
+    boolean deleteCategory(Integer id) throws ResourceNotFoundException;
 }

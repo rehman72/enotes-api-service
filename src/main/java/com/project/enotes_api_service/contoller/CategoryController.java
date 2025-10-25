@@ -1,6 +1,7 @@
 package com.project.enotes_api_service.contoller;
 
 import com.project.enotes_api_service.Endpoint.CategoryEndPoint;
+import com.project.enotes_api_service.Exception.ResourceNotFoundException;
 import com.project.enotes_api_service.dto.CategoryDto;
 import com.project.enotes_api_service.dto.CategoryResponseDto;
 import com.project.enotes_api_service.service.CategoryServiceImpl;
@@ -63,7 +64,7 @@ public class CategoryController implements CategoryEndPoint {
             return CommonUtil.createBuildResponse(categoryById,HttpStatus.OK);
     }
 
-    public ResponseEntity<?> deleteCategoryById(Integer id){
+    public ResponseEntity<?> deleteCategoryById(Integer id) throws ResourceNotFoundException {
         boolean isDeleted = categoryService.deleteCategory(id);
         if(isDeleted){
             return CommonUtil.createBuildResponseMessage("Category Deleted Successfully",HttpStatus.OK);

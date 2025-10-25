@@ -1,5 +1,6 @@
 package com.project.enotes_api_service.Endpoint;
 
+import com.project.enotes_api_service.Exception.ResourceNotFoundException;
 import com.project.enotes_api_service.dto.CategoryDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,5 +36,5 @@ public interface CategoryEndPoint {
 
     @Operation(summary = "Delete CategoryById",description = "Only for Admin",tags = {"Category Apis's"})
     @DeleteMapping("/{id}")
-    ResponseEntity<?> deleteCategoryById(@PathVariable("id") Integer id);
+    ResponseEntity<?> deleteCategoryById(@PathVariable("id") Integer id) throws ResourceNotFoundException;
 }
