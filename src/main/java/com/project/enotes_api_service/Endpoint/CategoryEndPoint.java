@@ -17,7 +17,7 @@ public interface CategoryEndPoint {
     @Operation(summary = "Save Category",tags = {"Category Apis's","User"})
     @PostMapping("/save-category")
     @PreAuthorize(ROLE_USER)
-    ResponseEntity<?> saveCategory(@RequestBody CategoryDto category);
+    ResponseEntity<?> saveCategory(@RequestBody CategoryDto category) throws ResourceNotFoundException;
 
     @Operation(summary = "Get All Category",description = "Only for Admin",tags = {"Category Apis's"})
     @PreAuthorize(ROLE_ADMIN_USER)

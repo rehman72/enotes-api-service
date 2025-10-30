@@ -9,6 +9,7 @@ import com.project.enotes_api_service.dto.UserRequest;
 import com.project.enotes_api_service.entity.Role;
 import com.project.enotes_api_service.repository.RoleRepository;
 import com.project.enotes_api_service.repository.UserRepository;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -19,34 +20,29 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@NoArgsConstructor
 public class Validation {
 
+    private  RoleRepository roleRepository;
 
-    private final RoleRepository roleRepository;
-
-
-    private final UserRepository userRepository;
+    private  UserRepository userRepository;
 
     public Validation(RoleRepository roleRepository, UserRepository userRepository) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
     }
 
+
     public void CategoryValidation(CategoryDto categoryDto){
         Map<String,Object> error=new LinkedHashMap<>();
-        if(ObjectUtils.isEmpty(categoryDto)){
-            throw new ValidationException("Pass Category object as {JSON} Body");
-        }else{
-            validateName(categoryDto,error);
+        validateName(categoryDto.getName(),error);
             validateDescription(categoryDto,error);
-        }
         if(!error.isEmpty()){
             throw new ValidationException(error);
         }
     }
 
-    public void validateName(CategoryDto categoryDto,Map<String,Object> error){
-        String name = categoryDto.getName();
+    public void validateName(String name,Map<String,Object> error){
         if(ObjectUtils.isEmpty(name)){
             error.put("name","Name Field Cannot be null");
         }else if (name.length()<3){
@@ -57,8 +53,8 @@ public class Validation {
         String description = categoryDto.getDescription();
         if(ObjectUtils.isEmpty(description)){
             error.put("description","Description Field Cannot be null");
-        }else if(description.length()<10 || description.length()>25){
-            error.put("description","Description Field Must be minimum  10 to 25 characters");
+        }else if(description.length()<10 || description.length()>30){
+            error.put("description","Description Field Must be minimum  10 to 30 characters");
         }
     }
 

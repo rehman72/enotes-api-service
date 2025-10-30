@@ -19,9 +19,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity()
 @Slf4j
 public class SecurityConfig {
 
@@ -92,9 +93,8 @@ public class SecurityConfig {
                     exception.accessDeniedHandler(accessDeniedHandler);
                 });
 
-        return httpSecurity.build();
+        return  httpSecurity.build();
     }
-
 
 
 }

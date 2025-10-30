@@ -16,7 +16,6 @@ import org.springframework.util.ObjectUtils;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService{
@@ -38,32 +37,29 @@ public class CategoryServiceImpl implements CategoryService{
 
     @Transactional
     @Override
-    public Boolean saveCategory(CategoryDto category) {
-//        category.setIsDeleted(false);
-//        category.setCreatedOn(LocalDateTime.now());
-//        category.setCreateBy(1);
-//       Category savedCategory= categoryRepository.save(category);
-//       if(ObjectUtils.isEmpty(savedCategory)){
-//          return false;
-//       }
-        Boolean isExists = categoryRepository.existsByName(category.getName());
+    public Boolean saveCategory(CategoryDto categoryDto) throws ResourceNotFoundException {
+        validation.CategoryValidation(categoryDto);
+        Boolean isExists = categoryRepository.existsByName(categoryDto.getName());
         if(isExists){
             throw new  AlreadyExistException("Category Already Exists");
         }
-        validation.CategoryValidation(category);
-        Category category1 = modelMapper.map(category, Category.class);
-        if(ObjectUtils.isEmpty(category1.getId())){
-            category1.setIsDeleted(false);
+        Category category = modelMapper.map(categoryDto, Category.class);
+        if(category.getId() == null){
+            newCategory(category);
         }else{
-            updateCategory(category1);
+            existingCategory(category.getId());
         }
-        categoryRepository.save(category1);
+        categoryRepository.save(category);
         return true;
     }
 
-    private void updateCategory(Category category) {
-        Optional<Category> categoryById = categoryRepository.findById(category.getId());
-        categoryById.ifPresent(optionalcategory -> category.setIsDeleted(optionalcategory.getIsDeleted()));
+    public void existingCategory(Integer categoryId) throws ResourceNotFoundException {
+        categoryRepository.findById(categoryId)
+                .orElseThrow(()-> new ResourceNotFoundException("Category Not Found!"));
+    }
+
+    public void newCategory(Category category) {
+        category.setIsDeleted(false);
     }
 
 
@@ -90,8 +86,7 @@ public class CategoryServiceImpl implements CategoryService{
     @Override
     @Cacheable(value = "getCategoryById",key = "#id")
     public CategoryDto  getCategoryById(Integer id) throws Exception {
-        Category category=null;
-            category = categoryRepository.findByIdAndIsDeletedFalse(id)
+        Category category=categoryRepository.findByIdAndIsDeletedFalse(id)
                     .orElseThrow(()->new ResourceNotFoundException("Category not found with id "+id));
         if(!ObjectUtils.isEmpty(category)){
            return modelMapper.map(category, CategoryDto.class);
