@@ -35,7 +35,7 @@ public class JwtServiceImpl implements JwtService {
                 .toList());
         map.put("Status",user.getAccountStatus().getIsActive());
 
-        String token = Jwts
+        return Jwts
                 .builder()
                 .claims().add(map)
                 .subject(user.getEmail())
@@ -44,7 +44,6 @@ public class JwtServiceImpl implements JwtService {
                 .and()
                 .signWith(secretKey,SignatureAlgorithm.HS256)
                 .compact();
-        return token;
     }
 
     @Override
@@ -68,12 +67,14 @@ public class JwtServiceImpl implements JwtService {
         }
 
     @Override
-    public Boolean validateToken(String token, UserDetails userDetails){
-        if(tokenExpired(token)){
-            throw new JwtTokenExpiredException("Token Expired");
-        }
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        try {
+            if (tokenExpired(token)) {
+                throw new JwtTokenExpiredException("Token Expired");
+            }
+
         String username = extractUsername(token);
-        if(!username.equals(userDetails.getUsername())){
+        if (!username.equals(userDetails.getUsername())) {
             log.info("ValidateToken:: username not match");
             return false;
         }
@@ -81,15 +82,18 @@ public class JwtServiceImpl implements JwtService {
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
-        List<String> tokenRole=getRole(token);
-        if(!tokenRole.containsAll(userRoles)){
+        List<String> tokenRole = getRole(token);
+        if (!tokenRole.containsAll(userRoles)) {
             throw new SecurityException("Token does not match User Role!");
         }
-        log.info("Role : {}",getRole(token));
-        log.info("ValidateToken:: token :: {}",token);
-        log.info("Subject Claims: {}",extractUsername(token));
-        log.info("Payload: {}",extractAllClaims(token).toString());
-       log.info("UserId : {}",getUserId(token));
+    } catch (Exception e) {
+            log.info("Exception Occurs: {}",e.getMessage());
+        }
+//        log.info("Role : {}",getRole(token));
+//        log.info("ValidateToken:: token :: {}",token);
+//        log.info("Subject Claims: {}",extractUsername(token));
+//        log.info("Payload: {}",extractAllClaims(token).toString());
+//       log.info("UserId : {}",getUserId(token));
        return true;
     }
 

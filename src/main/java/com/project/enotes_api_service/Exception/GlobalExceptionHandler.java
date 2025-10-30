@@ -5,6 +5,7 @@ import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
@@ -53,29 +54,6 @@ public class GlobalExceptionHandler {
                     HttpStatus.FORBIDDEN
             );
         }
-
-
-//        if(e instanceof AccessDeniedException){
-//             errorDetails=ProblemDetail
-//                    .forStatusAndDetail(HttpStatus.valueOf(403),e.getMessage());
-//            errorDetails.setProperty("access_denied_reason","Not_Authorized");
-//        }
-//
-//        if(e instanceof SecurityException){
-//            errorDetails=ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(403),e.getMessage());
-//            errorDetails.setProperty("access_denied_reason","Invalid Signature");
-//        }
-//        if(e instanceof ExpiredJwtException){
-//            errorDetails=ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(403),e.getMessage());
-//            errorDetails.setProperty("access_denied_reason","Token Expired!");
-//        }
-//        if(e instanceof JwtException){
-//            errorDetails=ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(401),e.getMessage());
-//            errorDetails.setProperty("access_denied_reason","Invalid Token!");
-//        }
-//
-//        return errorDetails;
-//    }
 
     @ExceptionHandler(IOException.class)
     public ResponseEntity<?> handleIOExceptions(IOException e){
@@ -160,6 +138,11 @@ public class GlobalExceptionHandler {
 
         return CommonUtil.createErrorResponseMessage
                 ("Registration failed! Please Check Your Input!",httpStatus);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<?> handleHttpMessageNotReadable(HttpMessageNotReadableException e){
+        return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.NOT_FOUND);
     }
 
 

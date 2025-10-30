@@ -4,7 +4,7 @@ import com.project.enotes_api_service.Endpoint.CategoryEndPoint;
 import com.project.enotes_api_service.Exception.ResourceNotFoundException;
 import com.project.enotes_api_service.dto.CategoryDto;
 import com.project.enotes_api_service.dto.CategoryResponseDto;
-import com.project.enotes_api_service.service.CategoryServiceImpl;
+import com.project.enotes_api_service.service.CategoryService;
 import com.project.enotes_api_service.util.CommonUtil;
 import com.project.enotes_api_service.util.Validation;
 import lombok.extern.slf4j.Slf4j;
@@ -19,18 +19,17 @@ import java.util.List;
 @RestController
 public class CategoryController implements CategoryEndPoint {
 
-    private final CategoryServiceImpl categoryService;
+    private final CategoryService categoryService;
 
     private final Validation validation;
 
-    public CategoryController(CategoryServiceImpl categoryService, Validation validation) {
+    public CategoryController(CategoryService categoryService, Validation validation) {
         this.categoryService = categoryService;
         this.validation = validation;
     }
 
-    public ResponseEntity<?> saveCategory(CategoryDto category){
+    public ResponseEntity<?> saveCategory(CategoryDto category) throws ResourceNotFoundException {
         Boolean isSaved = categoryService.saveCategory(category);
-        validation.CategoryValidation(category);
         if(isSaved){
           return  CommonUtil.createBuildResponseMessage("saved Success",HttpStatus.CREATED);
         }else{

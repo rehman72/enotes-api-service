@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface CategoryService {
 
-    Boolean saveCategory(CategoryDto category);
+    Boolean saveCategory(CategoryDto category) throws ResourceNotFoundException;
 
     List<CategoryDto> getAllCategory();
 
